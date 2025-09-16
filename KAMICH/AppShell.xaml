@@ -7,19 +7,19 @@
     <TabBar>
         <ShellContent Title="Home" Route="home" ContentTemplate="{DataTemplate local:LandingPage}">
             <ShellContent.Icon>
-                <FontImageSource Glyph="&#xf015;" FontFamily="FASolid" Size="20" Color="Black"/>
+                <FontImageSource Glyph="&#xf015;" FontFamily="FASolid" Size="20"/>
             </ShellContent.Icon>
         </ShellContent>
 
         <ShellContent Title="Flota" Route="fleet" ContentTemplate="{DataTemplate local:FleetPage}">
             <ShellContent.Icon>
-                <FontImageSource Glyph="&#xf1b9;" FontFamily="FASolid" Size="20" Color="Black"/>
+                <FontImageSource Glyph="&#xf1b9;" FontFamily="FASolid" Size="20"/>
             </ShellContent.Icon>
         </ShellContent>
 
         <ShellContent Title="Ustawienia" Route="settings" ContentTemplate="{DataTemplate local:SettingsPage}">
             <ShellContent.Icon>
-                <FontImageSource Glyph="&#xf013;" FontFamily="FASolid" Size="20" Color="Black"/>
+                <FontImageSource Glyph="&#xf013;" FontFamily="FASolid" Size="20"/>
             </ShellContent.Icon>
         </ShellContent>
     </TabBar>
