@@ -70,6 +70,11 @@
 	    <DependentUpon>LandingPage.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
+    <ItemGroup>
+        <MauiFont Include="Resources\Fonts\Inter-Regular.ttf" Alias="InterRegular" />
+        <MauiFont Include="Resources\Fonts\Inter-Semibold.ttf" Alias="InterSemiBold" />
+        <MauiFont Include="Resources\Fonts\fa-solid-900.ttf" Alias="FASolid" />
+    </ItemGroup>
 
 	<ItemGroup>
 	  <MauiXaml Update="Pages\FleetPage.xaml">

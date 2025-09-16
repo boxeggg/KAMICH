@@ -20,19 +20,9 @@ namespace KAMICH.Integrations.Linqo.Models
         public double? HourlyPrice { get; set; }
         public double? OperatorPrice { get; set; }
         public Color? CustomColor { get; set; }
-        public VehicleIcon? CustomIcon { get; set; }
+        public string? CustomIcon { get; set; }
+        
     }
 
-    public enum VehicleIcon
-    {
-        Excavator = 0xF7D9,   
-        Truck = 0xF0D1,       
-        Tractor = 0xF722,     
-        Bulldozer = 0xF7DC,    
-        Loader = 0xF7DE,      
-        DumpTruck = 0xF7DD,   
-        Crane = 0xF7D6,       
-        PickupTruck = 0xF63B, 
-        Van = 0xF7DF          
-    }
+
 }

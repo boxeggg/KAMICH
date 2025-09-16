@@ -17,7 +17,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("KAMICH")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0+bb4a4368e194064d2e5a0d8de7231f5aa5d9ba9b")]
 [assembly: System.Reflection.AssemblyProductAttribute("KAMICH")]
 [assembly: System.Reflection.AssemblyTitleAttribute("KAMICH")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

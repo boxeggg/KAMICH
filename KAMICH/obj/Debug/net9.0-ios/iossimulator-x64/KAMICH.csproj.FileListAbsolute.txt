@@ -306,3 +306,4 @@ C:\Users\kamil\source\repos\KAMICH\KAMICH\obj\Debug\net9.0-ios\iossimulator-x64\
 C:\Users\kamil\source\repos\KAMICH\KAMICH\obj\Debug\net9.0-ios\iossimulator-x64\KAMICH.pdb
 C:\Users\kamil\source\repos\KAMICH\KAMICH\obj\Debug\net9.0-ios\iossimulator-x64\KAMICH.genruntimeconfig.cache
 C:\Users\kamil\source\repos\KAMICH\KAMICH\obj\Debug\net9.0-ios\iossimulator-x64\ref\KAMICH.dll
+C:\Users\kamil\source\repos\KAMICH\KAMICH\obj\Debug\net9.0-ios\iossimulator-x64\KAMICH.sourcelink.json

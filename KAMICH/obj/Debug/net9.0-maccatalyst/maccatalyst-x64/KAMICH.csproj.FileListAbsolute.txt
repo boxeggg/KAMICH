@@ -299,3 +299,4 @@ C:\Users\kamil\source\repos\KAMICH\KAMICH\obj\Debug\net9.0-maccatalyst\maccataly
 C:\Users\kamil\source\repos\KAMICH\KAMICH\obj\Debug\net9.0-maccatalyst\maccatalyst-x64\KAMICH.pdb
 C:\Users\kamil\source\repos\KAMICH\KAMICH\obj\Debug\net9.0-maccatalyst\maccatalyst-x64\KAMICH.genruntimeconfig.cache
 C:\Users\kamil\source\repos\KAMICH\KAMICH\obj\Debug\net9.0-maccatalyst\maccatalyst-x64\ref\KAMICH.dll
+C:\Users\kamil\source\repos\KAMICH\KAMICH\obj\Debug\net9.0-maccatalyst\maccatalyst-x64\KAMICH.sourcelink.json

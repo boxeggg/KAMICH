@@ -14,6 +14,6 @@ namespace KAMICH.Integrations.Linqo.Models
         [JsonIgnore]
         public Color? Color { get; set; }
         [JsonIgnore]
-        public VehicleIcon? Icon { get; set; }
+        public string? Icon { get; set; }
     }
 }

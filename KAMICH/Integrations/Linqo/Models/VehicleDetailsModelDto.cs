@@ -31,7 +31,7 @@ namespace KAMICH.Integrations.Linqo.Models
         public EventPoint Start { get; set; }
 
         [JsonPropertyName("end")]
-        public EventPoint End { get; set; }
+        public EventPoint? End { get; set; }
 
         [JsonPropertyName("duration")]
         public int Duration { get; set; }

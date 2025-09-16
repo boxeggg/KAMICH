@@ -47,7 +47,7 @@ public partial class VehicleDetails : ContentPage
         {
             try
             {
-                await DisplayAlert("B³¹d", $"Nie uda³o siê pobraæ danych: {ex.Message}", "OK");
+                await DisplayAlert("BÅ‚Ä…d", $"Nie udaÅ‚o siÄ™ pobraÄ‡ danych: {ex.Message}", "OK");
             }
             catch
             {

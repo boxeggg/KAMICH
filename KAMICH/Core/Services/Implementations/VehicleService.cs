@@ -111,14 +111,14 @@ namespace KAMICH.Core.Services.Implementations
                 .FirstOrDefault()?.Start?.Datetime;
             var lastOnEndDate = ignitionOnEvents
                 .OrderByDescending(e => e.Start.Datetime)
-                .FirstOrDefault()?.End.Datetime;
+                .FirstOrDefault()?.End?.Datetime;
             var firstOnMileage = ignitionOnEvents
                 .OrderBy(e => e.Start.Datetime)
                 .FirstOrDefault()?.Start.Mileage;
             var lastOnMileage = ignitionOnEvents
                 .Where(e => e.End != null)
-                .OrderByDescending(e => e.End.Datetime)
-                .FirstOrDefault()?.End.Mileage;
+                .OrderByDescending(e => e.End?.Datetime)
+                .FirstOrDefault()?.End?.Mileage;
 
             double hours = 0.0;
             if (firstOnStartDate.HasValue && lastOnEndDate.HasValue)
