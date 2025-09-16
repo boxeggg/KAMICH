@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="KAMICH.Pages.SettingsPage"
+             Title="Ustawienia">
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="12" Padding="16,12">
+            <!-- Sekcja: Wygląd -->
+            <Frame Padding="12" CornerRadius="12" HasShadow="False" >
+                <VerticalStackLayout Spacing="8">
+                    <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
+                        <Label Text="&#xF186;" FontFamily="FASolid" FontSize="18" VerticalOptions="Center"  Margin="0,0,10,0"/>
+                        <Label Grid.Column="1" Text="Wygląd" VerticalOptions="Center" />
+                        <Label Grid.Column="2" Text="" />
+                    </Grid>
+
+                    <BoxView/>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto" Padding="0,6" VerticalOptions="Center">
+                        <Label Text="Tryb ciemny" VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="" />
+                        <Switch Grid.Column="2"
+                                x:Name="DarkModeSwitch"
+                                HorizontalOptions="End"
+                                Toggled="OnDarkModeToggled" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+            
+            <Frame Padding="12" CornerRadius="12" HasShadow="False">
+                <VerticalStackLayout Spacing="8">
+                    <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
+                        <Label Text="&#xF084;" FontFamily="FASolid" FontSize="18" VerticalOptions="Center" Margin="0,0,10,0" />
+                        <Label Grid.Column="1" Text="Integracje" VerticalOptions="Center" />
+                        <Label Grid.Column="2" Text="" />
+                    </Grid>
+
+                    <BoxView/>
+
+                    <Grid ColumnDefinitions="*,Auto" Padding="0,8,0,0" VerticalOptions="Center">
+                        <Entry x:Name="ApiKeyEntry"
+                               Grid.Column="0"
+                               Placeholder="••••••••••••••"
+                               IsPassword="True"
+                               Completed="OnApiKeyCompleted"
+                               Unfocused="OnApiKeyUnfocused"
+                               />
+                        <Button x:Name="ApiKeyToggleBtn"
+                                Grid.Column="1"
+                                Text="Pokaż"
+                                Margin="8,0,0,0"
+                                HeightRequest="44"
+                                Padding="12,0"
+                                BackgroundColor="Transparent"
+                                Clicked="OnToggleApiKeyVisibility" />
+                    </Grid>
+
+                    <Label Text="Klucz do zewnętrznego serwisu." Padding="0,6,0,0" />
+                </VerticalStackLayout>
+            </Frame>
+            <Frame Padding="12" CornerRadius="12" HasShadow="False">
+                <VerticalStackLayout Spacing="0" Padding="0">
+                    <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center" Padding="0,0,0,8">
+                        <Label Text="&#xF1DE;" FontFamily="FASolid" FontSize="18" VerticalOptions="Center" Margin="0,0,10,0" />
+                        <Label Grid.Column="1" Text="Parametry systemowe" VerticalOptions="Center" FontAttributes="Bold" />
+                        <Label Grid.Column="2"
+                               Text="&#xF059;"           
+                               FontFamily="FASolid"
+                               FontSize="16"
+                               HorizontalOptions="End"
+                               VerticalOptions="Center"
+                               Opacity="0.9">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnHelpTapped" NumberOfTapsRequired="1" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+                    
+                    <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center" Padding="0" Margin="0,0,0,6">
+                        <Label Grid.Column="0" Text="&#xF52F;" FontFamily="FASolid" FontSize="18" VerticalOptions="Center" Margin="0,0,12,0" />
+                        <Label Grid.Column="1" Text="Cena paliwa" VerticalOptions="Center" />
+                        <Entry Grid.Column="2"
+                               x:Name="FuelPriceEntry"
+                               WidthRequest="110"
+                               HorizontalTextAlignment="End"
+                               Placeholder="0.00"
+                               Keyboard="Numeric"
+                               MaxLength="10"
+                               Unfocused="OnParameterChange"/>
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#EEE" HorizontalOptions="Fill" />
+                    
+                    <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center" Padding="0" Margin="0,6,0,6">
+                        <Label Grid.Column="0" Text="&#xF017;" FontFamily="FASolid" FontSize="18" VerticalOptions="Center" Margin="0,0,12,0" />
+                        <Label Grid.Column="1" Text="Stawka godzinowa" VerticalOptions="Center" />
+                        <Entry Grid.Column="2"
+                               x:Name="HourlyPriceEntry"
+                               WidthRequest="110"
+                               HorizontalTextAlignment="End"
+                               Placeholder="0.00"
+                               Keyboard="Numeric"
+                               MaxLength="10"
+                               Unfocused="OnParameterChange"/>
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#EEE" HorizontalOptions="Fill" />
+                    
+                    <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center" Padding="0" Margin="0,6,0,0">
+                        <Label Grid.Column="0" Text="&#xF007;" FontFamily="FASolid" FontSize="18" VerticalOptions="Center" Margin="0,0,12,0" />
+                        <Label Grid.Column="1" Text="Stawka operatora" VerticalOptions="Center" />
+                        <Entry Grid.Column="2"
+                               x:Name="OperatorPriceEntry"
+                               WidthRequest="110"
+                               HorizontalTextAlignment="End"
+                               Placeholder="0.00"
+                               Keyboard="Numeric"
+                               MaxLength="10"
+                               Unfocused="OnParameterChange"/>
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

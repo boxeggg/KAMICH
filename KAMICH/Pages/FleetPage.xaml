@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             x:Class="KAMICH.Pages.FleetPage"
+             Title="Flota">
+
+    <Grid RowDefinitions="Auto,*,Auto" Padding="16,12" RowSpacing="8">
+
+        <StackLayout Grid.Row="0" Orientation="Horizontal" HorizontalOptions="Center" Spacing="12">
+            <ActivityIndicator x:Name="Loader" IsVisible="{Binding IsBusy}" IsRunning="{Binding IsBusy}" WidthRequest="20" HeightRequest="20" />
+            <Label x:Name="ErrorLabel" TextColor="Red" IsVisible="False" />
+            <Label x:Name="NoDataLabel" Text="Brak danych do wyświetlenia." IsVisible="{Binding Vehicles, Converter={toolkit:IsListNullOrEmptyConverter}}" />
+
+            <Frame x:Name="RefreshIconFrame"
+               WidthRequest="36"
+               HeightRequest="36"
+               CornerRadius="18"
+               Padding="0"
+               HasShadow="False"
+               VerticalOptions="Center"
+               HorizontalOptions="Center">
+
+                <Frame.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRefreshIconTapped" NumberOfTapsRequired="1" />
+                </Frame.GestureRecognizers>
+
+                <Label Text="&#xF021;"
+                   FontFamily="FASolid"
+                   FontSize="18"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"/>
+            </Frame>
+        </StackLayout>
+
+        <CollectionView Grid.Row="1"
+                        x:Name="VehiclesList"
+                        ItemsSource="{Binding Vehicles}"
+                        ItemSizingStrategy="MeasureFirstItem"
+                        SelectionMode="None"
+                        Margin="0,4,0,0">
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout Orientation="Vertical" Span="2" />
+            </CollectionView.ItemsLayout>
+
+            <CollectionView.EmptyView>
+                <StackLayout Padding="20" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Label Text="Brak pojazdów do wyświetlenia" FontSize="14" HorizontalOptions="Center" />
+                    <Label Text="Przywrócimy odświeżanie później." FontSize="12" HorizontalOptions="Center" />
+                </StackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame
+                           CornerRadius="14"
+                           Padding="12"
+                           HasShadow="True"
+                           Margin="6">
+                        <Frame.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.NavigateToVehicleCommand}"
+                                CommandParameter="{Binding Id}" />
+                        </Frame.GestureRecognizers>
+
+                        <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
+                            <Frame Grid.Column="0"
+                                   WidthRequest="44" HeightRequest="44"
+                                   CornerRadius="22"
+                                   Padding="6"
+                                   HasShadow="False"
+                                   VerticalOptions="Center"
+                                   HorizontalOptions="Start">
+                                <Label Text="&#xF1B9;"
+                                       FontFamily="FASolid"
+                                       FontSize="18"
+                                       HorizontalTextAlignment="Center"
+                                       VerticalTextAlignment="Center" />
+                            </Frame>
+
+                            <Label Grid.Column="1"
+                                   Text="{Binding Name}"
+                                   FontAttributes="Bold"
+                                   FontSize="16"
+                                   LineBreakMode="TailTruncation"
+                                   VerticalTextAlignment="Center"
+                                   Margin="12,0,0,0" />
+
+                            <Label Grid.Column="2"
+                                   Text="&#xF054;"
+                                   FontFamily="FASolid"
+                                   FontSize="16"
+                                   VerticalTextAlignment="Center"
+                                   HorizontalTextAlignment="End" />
+                        </Grid>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Label Grid.Row="2" Text="{Binding LastUpdatedText}" FontSize="12" HorizontalOptions="End" />
+    </Grid>
+</ContentPage>
