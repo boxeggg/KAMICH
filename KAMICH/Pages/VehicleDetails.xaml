@@ -7,10 +7,11 @@
 
     <ScrollView>
         <VerticalStackLayout Padding="14" Spacing="12">
-
             <Frame CornerRadius="10" Padding="10" HasShadow="False" BackgroundColor="{DynamicResource PageBackgroundColor}">
-                <HorizontalStackLayout VerticalOptions="Center" Spacing="10">
-                    <VerticalStackLayout HorizontalOptions="StartAndExpand" Spacing="2">
+                <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto" ColumnSpacing="10">
+
+                    <!-- Lewa strona: nazwa + opis -->
+                    <VerticalStackLayout Grid.Column="0" Spacing="2">
                         <Label
                             Text="{Binding Name, FallbackValue='(brak nazwy)'}"
                             FontSize="20"
@@ -21,8 +22,27 @@
                             FontSize="12"
                             Opacity="0.7" />
                     </VerticalStackLayout>
-                </HorizontalStackLayout>
+
+                    <!-- Prawa strona: ikony akcji -->
+                    <HorizontalStackLayout Grid.Column="1" Spacing="16" VerticalOptions="Center">
+
+                        <HorizontalStackLayout Grid.Column="1" Spacing="16" VerticalOptions="Center">
+                            <Label
+                                Text="&#xf013;"
+                                FontFamily="FASolid"
+                                FontSize="22"
+                                VerticalOptions="Center">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnCustomizeTapped" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+
+                        
+                    </HorizontalStackLayout>
+                </Grid>
             </Frame>
+
 
             <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" RowSpacing="8" ColumnSpacing="8">
 

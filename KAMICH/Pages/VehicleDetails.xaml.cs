@@ -26,6 +26,10 @@ public partial class VehicleDetails : ContentPage
         base.OnAppearing();
         _ = LoadDataAsync();
     }
+    private async void OnCustomizeTapped(object sender, TappedEventArgs e)
+    {
+        await Shell.Current.GoToAsync("vehicleCustomizationPage");
+    }
 
     private async Task LoadDataAsync()
     {
