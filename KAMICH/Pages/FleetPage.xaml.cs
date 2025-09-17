@@ -14,15 +14,17 @@ namespace KAMICH.Pages
     public partial class FleetPage : ContentPage
     {
         private readonly IVehicleService _vehicleService;
+        private readonly IMemoryService _memoryService;
 
         public ObservableCollection<VehicleModelDto> Vehicles { get; } = new();
         public ICommand NavigateToVehicleCommand { get; }
         private bool _isNavigating;
 
-        public FleetPage(IVehicleService vehicleService)
+        public FleetPage(IVehicleService vehicleService, IMemoryService memoryService)
         {
             InitializeComponent();
             _vehicleService = vehicleService;
+            _memoryService = memoryService;
             BindingContext = this;
 
             NavigateToVehicleCommand = new Command<object>(async param =>
@@ -33,22 +35,16 @@ namespace KAMICH.Pages
                 try
                 {
                     if (param == null) return;
-
-                    if (param is Guid guid)
-                    {
-                        await Navigation.PushAsync(new VehicleDetails(guid, _vehicleService));
-                        return;
-                    }
-
+                    
                     var idStr = param.ToString();
                     if (Guid.TryParse(idStr, out var parsed))
                     {
-                        await Navigation.PushAsync(new VehicleDetails(parsed, _vehicleService));
+                        await Shell.Current.GoToAsync($"details?VehicleId={idStr}");
                     }
                 }
-                catch
+                catch(Exception ex)
                 {
-                    try { await DisplayAlert("Błąd", "Nie udało się otworzyć szczegółów pojazdu.", "OK"); } catch { }
+                    try { await DisplayAlert("Błąd", "Nie udało się otworzyć szczegółów pojazdu."+ex,  "OK"); } catch { }
                 }
                 finally
                 {
@@ -62,7 +58,6 @@ namespace KAMICH.Pages
             base.OnAppearing();
             await LoadAsync();
         }
-        // zmieniamy na async żeby móc awaitować
         private async void OnRefreshIconTapped(object sender, EventArgs e) => await LoadAsync(false);
 
         private async Task LoadAsync(bool withCache = true)
@@ -89,7 +84,6 @@ namespace KAMICH.Pages
                 if (result == null || result.Vehicles == null || !result.Vehicles.Any())
                 {
                     NoDataLabel.IsVisible = true;
-                    Debug.WriteLine("LoadAsync: result or result.Vehicles is null/empty.");
                     return;
                 }
 
@@ -100,7 +94,6 @@ namespace KAMICH.Pages
             }
             catch (Exception ex)
             {
-                // pokaż użytkownikowi i zaloguj dla devów — minimalny koszt, duża wartość
                 Debug.WriteLine($"LoadAsync exception: {ex}");
                 try
                 {

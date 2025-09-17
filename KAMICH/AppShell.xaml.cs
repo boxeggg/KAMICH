@@ -7,9 +7,8 @@ namespace KAMICH
         public AppShell()
         {
             InitializeComponent();
-            Routing.RegisterRoute("fleet", typeof(FleetPage));
-            Routing.RegisterRoute("settings", typeof(SettingsPage));
-            Routing.RegisterRoute("landing", typeof(LandingPage));
+            Routing.RegisterRoute("details", typeof(VehicleDetails));
+            Routing.RegisterRoute("customization", typeof(VehicleCustomizationPage));
         }
     }
 }
