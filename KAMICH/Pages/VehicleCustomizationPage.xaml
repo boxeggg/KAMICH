@@ -6,15 +6,12 @@
 
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="18">
-
-            <!-- Nagłówek / instrukcja -->
             <VerticalStackLayout Spacing="6">
                 <Label Text="Dostosuj pojazd" FontSize="20" FontAttributes="Bold" />
                 <Label Text="Wybierz ikonę i kolor pojazdu. Kliknij, aby zaznaczyć." 
                        FontSize="12" Opacity="0.8" />
             </VerticalStackLayout>
-
-            <!-- Podgląd wyboru -->
+            
             <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto" Padding="0" VerticalOptions="Center">
                 <StackLayout Orientation="Horizontal" Spacing="12" VerticalOptions="Center">
                     <Border WidthRequest="64" HeightRequest="64"
@@ -40,12 +37,12 @@
                        Text="{Binding Source={x:Reference IconCollection}, Path=SelectedItem.Name, StringFormat='Wybrana ikona: {0}'}"
                        FontSize="14" />
                 
-                <!-- PRZYCISK bez konwertera: DataTrigger ustawia IsEnabled = false gdy SelectedItem == null -->
                 <Button Grid.Column="2"
                         Text="Zapisz"
                         VerticalOptions="Center"
                         Padding="10,6"
                         CornerRadius="8"
+                        Clicked="SaveButton"
                         Background="#2196F3"
                         TextColor="White">
                     <Button.Triggers>
@@ -58,10 +55,8 @@
                 </Button>
             </Grid>
 
-            <!-- Separator -->
             <BoxView HeightRequest="1" Color="#E6E6E6" Margin="0,6"/>
 
-            <!-- Ikony -->
             <Label Text="Wybierz ikonę" FontSize="16" FontAttributes="Bold" />
 
             <CollectionView x:Name="IconCollection"
@@ -84,7 +79,7 @@
                                 AutomationProperties.IsInAccessibleTree="True"
                                 AutomationProperties.Name="{Binding Name}">
                             
-                            <!-- Visual states: Normal / Selected -->
+      
                             <VisualStateManager.VisualStateGroups>
                                 <VisualStateGroup Name="SelectionStates">
                                     <VisualState Name="Normal" />
@@ -107,8 +102,7 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-
-            <!-- Kolory -->
+            
             <Label Text="Wybierz kolor" FontSize="16" FontAttributes="Bold" />
 
             <CollectionView x:Name="ColorCollection"
@@ -147,8 +141,7 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-
-            <!-- Mała stopka z podpowiedzią -->
+            
             <Label Text="Tip: kliknij ikonę, a następnie kolor, aby ustawić wygląd pojazdu." 
                    FontSize="12" Opacity="0.7" HorizontalOptions="Center" Margin="0,6"/>
 

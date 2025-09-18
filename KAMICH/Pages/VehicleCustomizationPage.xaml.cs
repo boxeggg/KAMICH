@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using KAMICH.Core.Models;
 using KAMICH.Core.Services;
 
 namespace KAMICH.Pages;
@@ -73,7 +74,26 @@ public partial class VehicleCustomizationPage : ContentPage
             SelectedColor = (Color)e.CurrentSelection[0];
         }
     }
-    
+
+    private async void SaveButton(object? sender, EventArgs e)
+    {
+        var model = await _memoryService.GetMemoryVehiclesDetails(_vehicleId);
+        if (model != null)
+        {
+            model.CustomColor = SelectedColor;
+            model.CustomIcon = SelectedIcon.IconGlyph;
+            await _memoryService.SetMemoryVehicle(model);
+        }
+        else
+        {
+            var newModel = new MemoryVehicleDetails { };
+            newModel.Id = _vehicleId;
+            newModel.CustomColor = SelectedColor;
+            newModel.CustomIcon = SelectedIcon?.IconGlyph;
+            await _memoryService.SetMemoryVehicle(newModel);
+        }
+
+    }
 }
 public class IconItem
 {
