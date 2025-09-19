@@ -26,52 +26,36 @@ namespace KAMICH.Core.Services.Implementations
             _cacheService = cacheService;
         }
 
-        public async Task<VehicleListModel> GetVehicles(bool UseCache = true, CancellationToken ct = default)
+        public async Task<VehicleListModel?> GetVehicles(bool useCache = true, CancellationToken ct = default)
         {
-            var cacheVehicles = await _cacheService.GetCachedVehicles();
-            if (cacheVehicles != null && UseCache)
-                return cacheVehicles;
+            var vehicles = useCache ? (await _cacheService.GetCachedVehicles())?.Vehicles : null;
 
-            var url = BuildUrl("objects", new Dictionary<string, string?>
+            if (vehicles == null)
             {
-                ["version"] = "1",
-                ["api_key"] = ApiKey
-            });
-
-            using var resp = await _http.GetAsync(url, ct);
-            var text = await resp.Content.ReadAsStringAsync(ct);
-
-            using var doc = JsonDocument.Parse(text);
-            var root = doc.RootElement;
-
-            List<VehicleModelDto>? list = null;
-            list = JsonSerializer.Deserialize<List<VehicleModelDto>>(root.GetRawText(), JsonOpts);
-            VehicleListModel vm = new VehicleListModel()
-            {
-                Vehicles = new List<VehicleModelDto>()
-            };
-            foreach (var vehicle in list)
-            {
-                var vehicleMemory = await _memoryService.GetMemoryVehiclesDetails(vehicle.Id);
-                if (vehicleMemory != null)
+                var url = BuildUrl("objects", new Dictionary<string, string?>
                 {
-                    vm.Vehicles.Add(
-                        new VehicleModelDto()
-                        {
-                            Id = vehicle.Id,
-                            Name = vehicle.Name,
-                            Color = vehicleMemory.CustomColor,
-                            Icon = vehicleMemory.CustomIcon,
-                        }
-                    );
-                }
-                else
+                    ["version"] = "1",
+                    ["api_key"] = ApiKey
+                });
+
+                using var resp = await _http.GetAsync(url, ct);
+                var text = await resp.Content.ReadAsStringAsync(ct);
+                vehicles = JsonSerializer.Deserialize<List<VehicleModelDto>>(text, JsonOpts) ?? new List<VehicleModelDto>();
+            }
+            
+            for (int i = 0; i < vehicles.Count; i++)
+            {
+                var memory = await _memoryService.GetMemoryVehiclesDetails(vehicles[i].Id);
+                if (memory != null)
                 {
-                    vm.Vehicles.Add(vehicle);
+                    vehicles[i].Color = memory.CustomColor;
+                    vehicles[i].Icon = memory.CustomIcon;
                 }
             }
 
+            var vm = new VehicleListModel { Vehicles = vehicles };
             await _cacheService.UpdateCachedVehicles(vm);
+
             _cacheTimeUtc = DateTime.UtcNow;
             return vm;
         }

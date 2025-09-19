@@ -71,7 +71,7 @@
                                    HasShadow="False"
                                    VerticalOptions="Center"
                                    HorizontalOptions="Start">
-                                <Label Text="&#xF1B9;"
+                                <Label Text="{Binding CustomIcon}"
                                        FontFamily="FASolid"
                                        FontSize="18"
                                        HorizontalTextAlignment="Center"

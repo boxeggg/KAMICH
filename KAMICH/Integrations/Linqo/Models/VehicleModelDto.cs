@@ -13,7 +13,7 @@ namespace KAMICH.Integrations.Linqo.Models
         [JsonPropertyName("name")] public string Name { get; set; } = string.Empty;
         [JsonIgnore]
         public Color? Color { get; set; }
-        [JsonIgnore]
-        public string? Icon { get; set; }
+
+        [JsonIgnore] public string Icon { get; set; } = "\uf1b9";
     }
 }

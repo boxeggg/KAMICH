@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -82,15 +83,20 @@ public partial class VehicleCustomizationPage : ContentPage
         {
             model.CustomColor = SelectedColor;
             model.CustomIcon = SelectedIcon.IconGlyph;
-            await _memoryService.SetMemoryVehicle(model);
+            if(await _memoryService.SetMemoryVehicle(model)) await Shell.Current.GoToAsync($"details?VehicleId={model.Id}");
+            else await DisplayAlert("Warning", "Something went wrong", "OK");
+
         }
         else
         {
-            var newModel = new MemoryVehicleDetails { };
-            newModel.Id = _vehicleId;
-            newModel.CustomColor = SelectedColor;
-            newModel.CustomIcon = SelectedIcon?.IconGlyph;
-            await _memoryService.SetMemoryVehicle(newModel);
+            var newModel = new MemoryVehicleDetails
+            {
+                Id = _vehicleId,
+                CustomColor = SelectedColor,
+                CustomIcon = SelectedIcon.IconGlyph
+            };
+            if(await _memoryService.SetMemoryVehicle(newModel)) await Shell.Current.GoToAsync($"details?VehicleId={model.Id}");
+            else await DisplayAlert("Warning", "Something went wrong", "OK");
         }
 
     }
