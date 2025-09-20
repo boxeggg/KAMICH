@@ -9,8 +9,7 @@
         <VerticalStackLayout Padding="14" Spacing="12">
             <Frame CornerRadius="10" Padding="10" HasShadow="False" BackgroundColor="{DynamicResource PageBackgroundColor}">
                 <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto" ColumnSpacing="10">
-
-                    <!-- Lewa strona: nazwa + opis -->
+                    
                     <VerticalStackLayout Grid.Column="0" Spacing="2">
                         <Label
                             Text="{Binding Name, FallbackValue='(brak nazwy)'}"
@@ -23,7 +22,7 @@
                             Opacity="0.7" />
                     </VerticalStackLayout>
 
-                    <!-- Prawa strona: ikony akcji -->
+
                     <HorizontalStackLayout Grid.Column="1" Spacing="16" VerticalOptions="Center">
 
                         <HorizontalStackLayout Grid.Column="1" Spacing="16" VerticalOptions="Center">

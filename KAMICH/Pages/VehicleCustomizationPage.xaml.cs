@@ -48,17 +48,34 @@ public partial class VehicleCustomizationPage : ContentPage
         
         BindingContext = this;
         
-        SelectedIcon = Icons[0];
-        SelectedColor = Colors[1];
-        
+        IconCollection.SelectionChanged += IconCollection_SelectionChanged;
+        ColorCollection.SelectionChanged += ColorCollection_SelectionChanged;
+    }
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+
+        var vm = await _memoryService.GetMemoryVehiclesDetails(_vehicleId);
+
+        if (vm != null)
+        {
+            SelectedIcon = Icons.FirstOrDefault(x => x.IconGlyph == vm.CustomIcon) 
+                           ?? Icons.First();
+
+            SelectedColor = Colors.FirstOrDefault(c => Equals(c, vm.CustomColor))
+                            ?? Colors.First();
+        }
+        else
+        {
+            SelectedIcon = Icons[0];
+            SelectedColor = Colors[1];
+        }
+
         IconCollection.ItemsSource = Icons;
         IconCollection.SelectedItem = SelectedIcon;
 
         ColorCollection.ItemsSource = Colors;
         ColorCollection.SelectedItem = SelectedColor;
-        
-        IconCollection.SelectionChanged += IconCollection_SelectionChanged;
-        ColorCollection.SelectionChanged += ColorCollection_SelectionChanged;
     }
     private void IconCollection_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -83,7 +100,7 @@ public partial class VehicleCustomizationPage : ContentPage
         {
             model.CustomColor = SelectedColor;
             model.CustomIcon = SelectedIcon.IconGlyph;
-            if(await _memoryService.SetMemoryVehicle(model)) await Shell.Current.GoToAsync($"details?VehicleId={model.Id}");
+            if(await _memoryService.SetMemoryVehicle(model)) await Shell.Current.GoToAsync($"..");
             else await DisplayAlert("Warning", "Something went wrong", "OK");
 
         }
@@ -95,7 +112,7 @@ public partial class VehicleCustomizationPage : ContentPage
                 CustomColor = SelectedColor,
                 CustomIcon = SelectedIcon.IconGlyph
             };
-            if(await _memoryService.SetMemoryVehicle(newModel)) await Shell.Current.GoToAsync($"details?VehicleId={model.Id}");
+            if(await _memoryService.SetMemoryVehicle(newModel)) await Shell.Current.GoToAsync($"..");
             else await DisplayAlert("Warning", "Something went wrong", "OK");
         }
 

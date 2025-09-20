@@ -89,6 +89,10 @@ namespace KAMICH.Pages
 
                 foreach (var v in result.Vehicles.OrderBy(v => v.Name ?? string.Empty))
                 {
+                    Debug.WriteLine($"ADD Vehicle {v.Id} {v.Icon} - Color: R={v.Color.Red:F3} G={v.Color.Green:F3} B={v.Color.Blue:F3} A={v.Color.Alpha:F3}; ");
+                    Debug.WriteLine($"ADD Vehicle {v.Id} {v.Icon} - Color: R={v.Color.Red:F3} G={v.Color.Green:F3} B={v.Color.Blue:F3} A={v.Color.Alpha:F3}; ");
+                    Debug.WriteLine($"ADD Vehicle {v.Id} {v.Icon} - Color: R={v.Color.Red:F3} G={v.Color.Green:F3} B={v.Color.Blue:F3} A={v.Color.Alpha:F3}; ");
+                    Debug.WriteLine($"ADD Vehicle {v.Id} {v.Icon} - Color: R={v.Color.Red:F3} G={v.Color.Green:F3} B={v.Color.Blue:F3} A={v.Color.Alpha:F3}; Br");
                     Vehicles.Add(v);
                 }
             }
