@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -64,12 +65,18 @@ public partial class VehicleCustomizationPage : ContentPage
 
             SelectedColor = Colors.FirstOrDefault(c => Equals(c, vm.CustomColor))
                             ?? Colors.First();
+            HourlyRateEntry.Text = vm.HourlyPrice.ToString() ?? "";
+            OperatorRateEntry.Text = vm.OperatorPrice.ToString() ?? "";
+            FuelPriceEntry.Text = vm.FuelPrice.ToString() ?? "";
+            
         }
         else
         {
             SelectedIcon = Icons[0];
             SelectedColor = Colors[1];
         }
+        
+        
 
         IconCollection.ItemsSource = Icons;
         IconCollection.SelectedItem = SelectedIcon;
@@ -100,6 +107,25 @@ public partial class VehicleCustomizationPage : ContentPage
         {
             model.CustomColor = SelectedColor;
             model.CustomIcon = SelectedIcon.IconGlyph;
+            model.FuelPrice = double.TryParse((FuelPriceEntry?.Text ?? "").Trim().Replace(',', '.'),
+                NumberStyles.Number,
+                CultureInfo.InvariantCulture,
+                out var g)
+                ? g
+                : 0.0;
+            model.OperatorPrice = double.TryParse((OperatorRateEntry?.Text ?? "").Trim().Replace(',', '.'),
+                NumberStyles.Number,
+                CultureInfo.InvariantCulture,
+                out var d)
+                ? d
+                : 0.0;
+            model.HourlyPrice = double.TryParse((HourlyRateEntry?.Text ?? "").Trim().Replace(',', '.'),
+                NumberStyles.Number,
+                CultureInfo.InvariantCulture,
+                out var f)
+                ? f
+                : 0.0;
+            model.IsTracked = TrackingSwitch.IsToggled;
             if(await _memoryService.SetMemoryVehicle(model)) await Shell.Current.GoToAsync($"..");
             else await DisplayAlert("Warning", "Something went wrong", "OK");
 

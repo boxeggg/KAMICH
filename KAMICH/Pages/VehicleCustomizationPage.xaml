@@ -138,8 +138,16 @@
             </CollectionView>
 
             <!-- Parametry kosztów -->
-            <Label Text="Parametry kosztów" FontSize="16" FontAttributes="Bold"/>
-            <VerticalStackLayout Spacing="8">
+            <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" >
+                <Label Text="Włącz symulacje uzysków"
+                       FontSize="14"
+                       VerticalOptions="Center"
+                       VerticalTextAlignment="Center"/>
+                <Switch x:Name="TrackingSwitch"
+                        Grid.Column="1"
+                        VerticalOptions="Center"/>
+            </Grid>
+            <VerticalStackLayout Spacing="8" IsVisible="{Binding Source={x:Reference TrackingSwitch}, Path=IsToggled}">
                 <VerticalStackLayout Spacing="2">
                     <Label Text="Cena paliwa [zł/l]" FontSize="14"/>
                     <Entry x:Name="FuelPriceEntry"
@@ -165,9 +173,6 @@
                 </VerticalStackLayout>
             </VerticalStackLayout>
 
-            <!-- Tip -->
-            <Label Text="Tip: kliknij ikonę, a następnie kolor, aby ustawić wygląd pojazdu." 
-                   FontSize="12" Opacity="0.7" HorizontalOptions="Center" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
