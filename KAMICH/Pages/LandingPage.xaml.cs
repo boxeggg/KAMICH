@@ -1,12 +1,31 @@
-﻿using KAMICH.Pages;
+﻿using KAMICH.Core.Services;
+using KAMICH.Pages;
 
 namespace KAMICH.Pages
 {
     public partial class LandingPage : ContentPage
     {
-        public LandingPage()
+        private IHomeService _homeService;
+        public LandingPage(IHomeService homeService)
         {
             InitializeComponent();
+            _homeService = homeService;
+
+        }
+
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+
+            try
+            {
+                var vm = await _homeService.GetHomePageViewModel();
+                BindingContext = vm;
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", ex.ToString(), "OK");
+            }
         }
 
 

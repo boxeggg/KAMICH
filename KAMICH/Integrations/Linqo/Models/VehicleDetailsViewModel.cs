@@ -15,10 +15,6 @@ namespace KAMICH.Integrations.Linqo.Models
         public double? DailyMileage { get; set; }
         public string FirstIgnitionOnPoland => FirstIgnitionOn?.ToString("HH:mm") ?? null;
         public string LastIgnitionOffPoland => LastIgnitionOff?.ToString("HH:mm") ?? null;
-        public bool? isTracked { get; set; }
-        public double? FuelPrice { get; set; }
-        public double? HourlyPrice { get; set; }
-        public double? OperatorPrice { get; set; }
         public Color? CustomColor { get; set; }
         public string? CustomIcon { get; set; }
         

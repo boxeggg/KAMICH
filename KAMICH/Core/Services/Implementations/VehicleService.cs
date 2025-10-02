@@ -123,13 +123,13 @@ namespace KAMICH.Core.Services.Implementations
                     dailyMileage = null;
             }
 
-            var vehicleCache = await _cacheService.GetCachedVehicles();
+            var vehicleCache = await _cacheService.GetCachedVehicles() ?? new VehicleListModel();
             var cachedVehicle = vehicleCache.Vehicles.FirstOrDefault(v => v.Id == objectId);
             var vehicleMemory = await _memoryService.GetMemoryVehiclesDetails(objectId);
 
             var vm = new VehicleDetailsViewModel
             {
-                Name = cachedVehicle?.Name,
+                Name = cachedVehicle?.Name ?? "",
                 FirstIgnitionOn = ToPolandFromUtc(firstOnStartDate),
                 LastIgnitionOff = ToPolandFromUtc(lastOnEndDate),
                 HoursBetweenFirstOnAndLastOff = hours,

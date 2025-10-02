@@ -1,19 +1,74 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage
-    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    x:Class="KAMICH.Pages.LandingPage"
-    Title="KAMICH">
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="KAMICH.Pages.LandingPage"
+             Title="Strona główna"
+             BackgroundColor="{DynamicResource PageBackgroundColor}">
 
+    <ContentPage.Resources>
+        <!-- Optional: szybki styl dla ramek elementów -->
+        <Style TargetType="Frame">
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="HasShadow" Value="True" />
+            <Setter Property="Padding" Value="10" />
+            <Setter Property="Margin" Value="0,0,0,8" />
+        </Style>
+    </ContentPage.Resources>
 
+    <ContentPage.Content>
+        <ScrollView>
+            <VerticalStackLayout Padding="20" Spacing="18">
 
-    <ScrollView>
-        <VerticalStackLayout Spacing="0" Padding="0,4">
-            <BoxView/>
-            <Button x:Name="FleetBtn"
-                    Text="Flota   ›"
-                    Clicked="OnFleetClicked" />
-            <BoxView/>
-        </VerticalStackLayout>
-    </ScrollView>
+                <!-- Nagłówek -->
+                <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" HorizontalOptions="Fill">
+                    <VerticalStackLayout>
+                        <Label Text="Przychód dzienny" FontSize="14" Opacity="0.8"/>
+                        <Label Text="{Binding DailyIncome, StringFormat='{}{0:N2} zł'}"
+                               FontSize="28" FontAttributes="Bold" TextColor="Green"/>
+                    </VerticalStackLayout>
+
+                    <!-- Mały summary badge (opcjonalne) -->
+                    <Frame Grid.Column="1" VerticalOptions="Center" Padding="6,4" CornerRadius="12" HasShadow="False" BackgroundColor="#eef7ee">
+                        <Label Text="PLN" FontSize="12" FontAttributes="Bold" TextColor="Black" />
+                    </Frame>
+                </Grid>
+                
+                <CollectionView ItemsSource="{Binding Vehicles}" SelectionMode="None"
+                                VerticalOptions="FillAndExpand">
+                    <CollectionView.EmptyView>
+                        <Label Text="Brak pojazdów do wyświetlenia" HorizontalOptions="Center" VerticalOptions="CenterAndExpand" Opacity="0.7"/>
+                    </CollectionView.EmptyView>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Frame BackgroundColor="{Binding Color}">
+                                <Grid ColumnDefinitions="48,*,Auto" RowDefinitions="Auto" VerticalOptions="Center">
+                                    <!-- Ikona -->
+                                    <Label Text="{Binding Icon}"
+                                           FontSize="26"
+                                           FontFamily="FASolid"
+                                           HorizontalOptions="Center"
+                                           VerticalOptions="Center"
+                                           Margin="0" />
+                                    
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2" Margin="8,0">
+                                        <Label Text="{Binding Name}" FontSize="16" FontAttributes="Bold" LineBreakMode="TailTruncation"/>
+                                    </VerticalStackLayout>
+                                    
+                                    <Label Grid.Column="2"
+                                           Text="{Binding Income, StringFormat='{}{0:N2} zł'}"
+                                           FontSize="14"
+                                           FontAttributes="Bold"
+                                           VerticalOptions="Center"
+                                           HorizontalOptions="End"
+                                           TextColor="DarkBlue"/>
+                                </Grid>
+                            </Frame>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </ContentPage.Content>
 </ContentPage>
