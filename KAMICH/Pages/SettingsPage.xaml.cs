@@ -30,9 +30,11 @@ public partial class SettingsPage : ContentPage
         ApiKeyEntry.Text = m.ApiKey;
         ApiKeyEntry.IsPassword = true;
         ApiKeyToggleBtn.Text = "Pokaż";
-        FuelPriceEntry.Text = m.GlobalFuelPrice.ToString();
-        OperatorPriceEntry.Text = m.GlobalOperatorPrice.ToString();
-        HourlyPriceEntry.Text = m.GlobalHourlyPrice.ToString();
+        FuelPriceEntry.Text = m.GlobalVehicleSettings.FuelPrice.ToString();
+        OperatorPriceEntry.Text = m.GlobalVehicleSettings.OperatorPrice.ToString();
+        HourlyPriceEntry.Text = m.GlobalVehicleSettings.HourlyPrice.ToString();
+        FuelConsumptionEntry.Text = m.GlobalVehicleSettings.FuelConsumptionPerHour.ToString();
+
         _loading = false;
     }
 
@@ -40,18 +42,25 @@ public partial class SettingsPage : ContentPage
         => await _settings.SaveAsync(new AppSettingsModel
         {
             DarkMode = DarkModeSwitch.IsToggled,
-            GlobalFuelPrice = double.TryParse((FuelPriceEntry?.Text ?? "").Trim().Replace(',', '.'),
+            GlobalVehicleSettings = new VehicleStatsModel
+            {
+                FuelPrice = double.TryParse((FuelPriceEntry?.Text ?? "").Trim().Replace(',', '.'),
                 NumberStyles.Number,
                 CultureInfo.InvariantCulture,
                 out var f) ? f : 0.0,
-            GlobalOperatorPrice = double.TryParse((OperatorPriceEntry?.Text ?? "").Trim().Replace(',', '.'),
+                OperatorPrice = double.TryParse((OperatorPriceEntry?.Text ?? "").Trim().Replace(',', '.'),
                 NumberStyles.Number,
                 CultureInfo.InvariantCulture,
                 out var d) ? d : 0.0,
-            GlobalHourlyPrice = double.TryParse((HourlyPriceEntry?.Text ?? "").Trim().Replace(',', '.'),
+                HourlyPrice = double.TryParse((HourlyPriceEntry?.Text ?? "").Trim().Replace(',', '.'),
                 NumberStyles.Number,
                 CultureInfo.InvariantCulture,
                 out var e) ? e : 0.0,
+                FuelConsumptionPerHour = double.TryParse((FuelConsumptionEntry?.Text ?? "").Trim().Replace(',', '.'),
+                NumberStyles.Number,
+                CultureInfo.InvariantCulture,
+                out var g) ? g : 0.0,
+            },
             ApiKey = ApiKeyEntry.Text
         });
 
@@ -104,6 +113,7 @@ public partial class SettingsPage : ContentPage
             "• Cena paliwa – podstawowa cena za litr, używana do obliczeń.\n" +
             "• Stawka godzinowa – domyślna stawka za godzinę pracy.\n" +
             "• Stawka operatora – dodatkowa stawka przypisana operatorowi.\n\n" +
+            "• Pobór paliwa – Pobór paliwa za godzine pracy (Możliwość personalizacji trybu pracy w ustawieniach koparki).\n\n" +
             "Uwaga: Te wartości można później nadpisać indywidualnie dla każdego pojazdu, " +
             "jeżeli będzie potrzeba użycia innych stawek.";
 

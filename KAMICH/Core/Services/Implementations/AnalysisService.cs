@@ -35,13 +35,14 @@ public class AnalysisService : IAnalysisService
             var workHours = details.HoursBetweenFirstOnAndLastOff ?? 0;
             var mileage = details.DailyMileage ?? 0;
 
-            var fuelPrice = vehicle.FuelPrice ?? settings.GlobalFuelPrice;
-            var hourlyPrice = vehicle.HourlyPrice ?? settings.GlobalHourlyPrice;
-            var operatorPrice = vehicle.OperatorPrice ?? settings.GlobalOperatorPrice;
+            var fuelPrice = vehicle.FuelPrice ?? settings.GlobalVehicleSettings.FuelPrice;
+            var hourlyPrice = vehicle.HourlyPrice ?? settings.GlobalVehicleSettings.HourlyPrice;
+            var operatorPrice = vehicle.OperatorPrice ?? settings.GlobalVehicleSettings.OperatorPrice;
+            var fuelConsumptionPerHour =  settings.GlobalVehicleSettings.FuelConsumptionPerHour; // vehicle needed
 
             var income = (hourlyPrice * workHours)
-                         - (operatorPrice * workHours)
-                         - (fuelPrice * (mileage / 10.0));
+                       - (operatorPrice * workHours)
+                       - (fuelConsumptionPerHour * workHours * fuelPrice);
 
             _incomeCache[vehicle.Id] = income;
         }

@@ -10,12 +10,7 @@ namespace KAMICH.Core.Models
     {
         public bool DarkMode { get; set; }
         public string? ApiKey { get; set; }
-        
-        public double GlobalFuelPrice { get; set; }
-        
-        public double GlobalHourlyPrice { get; set; }
-        
-        public double GlobalOperatorPrice { get; set; }
+        public VehicleStatsModel GlobalVehicleSettings { get; set; }
         
     }
 }

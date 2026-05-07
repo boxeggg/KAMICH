@@ -13,6 +13,7 @@ namespace KAMICH.Core.Services.Implementations
         const string FuelPrice = "settings.fuel_price";
         const string HourlyPrice = "settings.hourly_price";
         const string OperatorPrice = "settings.operator_price";
+        const string FuelConsumption = "settings.fuel_consumption";
         const string KeyApiKey = "settings.external_api_key";
 
         public async Task<AppSettingsModel> LoadAsync()
@@ -20,20 +21,24 @@ namespace KAMICH.Core.Services.Implementations
             var model = new AppSettingsModel
             {
                 DarkMode = Preferences.Get(KeyDarkMode, false),
-                GlobalFuelPrice = Preferences.Get(FuelPrice, 0.0),
-                GlobalHourlyPrice = Preferences.Get(HourlyPrice, 0.0),
-                GlobalOperatorPrice = Preferences.Get(OperatorPrice, 0.0),
+                GlobalVehicleSettings = new VehicleStatsModel {
+                    FuelConsumptionPerHour = Preferences.Get(FuelConsumption, 0.0),
+                    FuelPrice = Preferences.Get(FuelPrice, 0.0),
+                    OperatorPrice = Preferences.Get(OperatorPrice, 0.0),
+                    HourlyPrice = Preferences.Get(HourlyPrice, 0.0),
+                },
                 ApiKey = await TryGetSecureAsync(KeyApiKey)
-            };
+            };  
             return model;
         }
 
         public async Task SaveAsync(AppSettingsModel model)
         {
             Preferences.Set(KeyDarkMode, model.DarkMode);
-            Preferences.Set(FuelPrice, model.GlobalFuelPrice);
-            Preferences.Set(HourlyPrice, model.GlobalHourlyPrice);
-            Preferences.Set(OperatorPrice, model.GlobalOperatorPrice);
+            Preferences.Set(FuelPrice, model.GlobalVehicleSettings.FuelPrice);
+            Preferences.Set(HourlyPrice, model.GlobalVehicleSettings.HourlyPrice);
+            Preferences.Set(OperatorPrice, model.GlobalVehicleSettings.OperatorPrice);
+            Preferences.Set(FuelConsumption, model.GlobalVehicleSettings.FuelConsumptionPerHour);
             await SetApiKeyAsync(model.ApiKey);
         }
 

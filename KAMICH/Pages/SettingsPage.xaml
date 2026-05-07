@@ -6,7 +6,6 @@
 
     <ScrollView>
         <VerticalStackLayout Spacing="12" Padding="16,12">
-            <!-- Sekcja: Wygląd -->
             <Frame Padding="12" CornerRadius="12" HasShadow="False" >
                 <VerticalStackLayout Spacing="8">
                     <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
@@ -77,7 +76,7 @@
                         </Label>
                     </Grid>
                     
-                    <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center" Padding="0" Margin="0,0,0,6">
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" VerticalOptions="Center" Padding="0" Margin="0,0,0,6">
                         <Label Grid.Column="0" Text="&#xF52F;" FontFamily="FASolid" FontSize="18" VerticalOptions="Center" Margin="0,0,12,0" />
                         <Label Grid.Column="1" Text="Cena paliwa" VerticalOptions="Center" />
                         <Entry Grid.Column="2"
@@ -88,10 +87,33 @@
                                Keyboard="Numeric"
                                MaxLength="10"
                                Unfocused="OnParameterChange"/>
+                        <Label Grid.Column="3"
+                               Text="zł/L"
+                               VerticalOptions="Center"
+                               HorizontalOptions="End"
+                               Margin="8,0,0,0" />
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#EEE" HorizontalOptions="Fill" />
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" VerticalOptions="Center" Padding="0" Margin="0,0,0,6">
+                        <Label Grid.Column="0" Text="&#xF52F;" FontFamily="FASolid" FontSize="18" VerticalOptions="Center" Margin="0,0,12,0" />
+                        <Label Grid.Column="1" Text="Pobór paliwa" VerticalOptions="Center" />
+                        <Entry Grid.Column="2"
+                               x:Name="FuelConsumptionEntry"
+                               WidthRequest="110"
+                               HorizontalTextAlignment="End"
+                               Placeholder="0.00"
+                               Keyboard="Numeric"
+                               MaxLength="10"
+                               Unfocused="OnParameterChange"/>
+                        <Label Grid.Column="3"
+                               Text="L/h"
+                               VerticalOptions="Center"
+                               HorizontalOptions="End"
+                               Margin="8,0,0,0" />
                     </Grid>
                     <BoxView HeightRequest="1" BackgroundColor="#EEE" HorizontalOptions="Fill" />
                     
-                    <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center" Padding="0" Margin="0,6,0,6">
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" VerticalOptions="Center" Padding="0" Margin="0,6,0,6">
                         <Label Grid.Column="0" Text="&#xF017;" FontFamily="FASolid" FontSize="18" VerticalOptions="Center" Margin="0,0,12,0" />
                         <Label Grid.Column="1" Text="Stawka godzinowa" VerticalOptions="Center" />
                         <Entry Grid.Column="2"
@@ -102,20 +124,30 @@
                                Keyboard="Numeric"
                                MaxLength="10"
                                Unfocused="OnParameterChange"/>
+                        <Label Grid.Column="3"
+                               Text="zł/godz"
+                               VerticalOptions="Center"
+                               HorizontalOptions="End"
+                               Margin="8,0,0,0" />
                     </Grid>
                     <BoxView HeightRequest="1" BackgroundColor="#EEE" HorizontalOptions="Fill" />
                     
-                    <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center" Padding="0" Margin="0,6,0,0">
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" VerticalOptions="Center" Padding="0" Margin="0,6,0,0">
                         <Label Grid.Column="0" Text="&#xF007;" FontFamily="FASolid" FontSize="18" VerticalOptions="Center" Margin="0,0,12,0" />
                         <Label Grid.Column="1" Text="Stawka operatora" VerticalOptions="Center" />
                         <Entry Grid.Column="2"
-                               x:Name="OperatorPriceEntry"
+                               x:Name="OperatorPriceEntry"  
                                WidthRequest="110"
                                HorizontalTextAlignment="End"
                                Placeholder="0.00"
                                Keyboard="Numeric"
                                MaxLength="10"
                                Unfocused="OnParameterChange"/>
+                        <Label Grid.Column="3"
+                               Text="zł/godz"
+                               VerticalOptions="Center"
+                               HorizontalOptions="End"
+                               Margin="8,0,0,0" />
                     </Grid>
                 </VerticalStackLayout>
             </Frame>
