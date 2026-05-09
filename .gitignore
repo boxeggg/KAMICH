@@ -1,0 +1,12 @@
+﻿################################################################################
+# Ten plik .gitignore został utworzony automatycznie przez Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs/KAMICH/CopilotIndices/18.0.988.22099
+/.vs/KAMICH/FileContentIndex
+/.vs/KAMICH/v18
+/.vs/KAMICH.slnx/v18
+/KAMICH/bin/Debug/net9.0-android
+/KAMICH/obj/Debug/net9.0-android
+/KAMICH/KAMICH.csproj.user
+/KAMICH/KAMICH.csproj.user
