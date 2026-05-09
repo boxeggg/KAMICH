@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading.Tasks;
 using KAMICH.Core.Models;
 using KAMICH.Core.Services;
-using KAMICH.Core.Services.Implementations;
 
 namespace KAMICH.Pages;
 
@@ -16,8 +15,8 @@ namespace KAMICH.Pages;
 public partial class VehicleCustomizationPage : ContentPage
 {
     private Guid _vehicleId;
-    private readonly IMemoryService  _memoryService;
-    private readonly ICacheService _cacheService;
+    private readonly IMemoryService _memoryService;
+    private readonly IVehicleService _vehicleService;
     public ObservableCollection<IconItem> Icons { get; set; } = new();
     public ObservableCollection<Color> Colors { get; set; } = new();
 
@@ -34,10 +33,10 @@ public partial class VehicleCustomizationPage : ContentPage
             }
         }
     }
-    public VehicleCustomizationPage(IMemoryService memoryService, ICacheService cacheService)
+    public VehicleCustomizationPage(IMemoryService memoryService, IVehicleService vehicleService)
     {
         _memoryService = memoryService;
-        _cacheService = cacheService;
+        _vehicleService = vehicleService;
         InitializeComponent();
         Icons.Add(new IconItem { IconGlyph = "\uf1b9" });
         Icons.Add(new IconItem { IconGlyph = "\uf0d1" }); 
@@ -107,10 +106,10 @@ public partial class VehicleCustomizationPage : ContentPage
     private async void SaveButton(object? sender, EventArgs e)
     {
         var model = await _memoryService.GetMemoryVehiclesDetails(_vehicleId);
-        var cachedVehicles = await _cacheService.GetCachedVehicles();
+        var vehicles = await _vehicleService.GetVehicles();
         if (model != null)
         {
-            model.Name = cachedVehicles.Vehicles.FirstOrDefault(x => x.Id == _vehicleId)?.Name;
+            model.Name = vehicles.FirstOrDefault(x => x.Id == _vehicleId)?.Name;
             model.CustomColor = SelectedColor;
             model.CustomIcon = SelectedIcon.IconGlyph;
             model.FuelPrice = double.TryParse((FuelPriceEntry?.Text ?? "").Trim().Replace(',', '.'),
@@ -140,7 +139,7 @@ public partial class VehicleCustomizationPage : ContentPage
         {
             var newModel = new MemoryVehicleDetails
             {
-                Name = cachedVehicles.Vehicles.FirstOrDefault(x => x.Id == _vehicleId)?.Name,
+                Name = vehicles.FirstOrDefault(x => x.Id == _vehicleId)?.Name,
                 Id = _vehicleId,
                 CustomColor = SelectedColor,
                 CustomIcon = SelectedIcon.IconGlyph

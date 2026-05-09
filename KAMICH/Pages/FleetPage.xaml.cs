@@ -1,116 +1,99 @@
 using KAMICH.Core.Services;
-using KAMICH.Integrations.Linqo;
 using KAMICH.Integrations.Linqo.Models;
-using Microsoft.Maui.Controls;
-using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
 
-namespace KAMICH.Pages
+namespace KAMICH.Pages;
+
+public partial class FleetPage : ContentPage
 {
-    public partial class FleetPage : ContentPage
+    private readonly IVehicleService _vehicleService;
+    private readonly IMemoryService _memoryService;
+
+    public ObservableCollection<VehicleModelDto> Vehicles { get; } = new();
+    public ICommand NavigateToVehicleCommand { get; }
+    private bool _isNavigating;
+
+    public FleetPage(IVehicleService vehicleService, IMemoryService memoryService)
     {
-        private readonly IVehicleService _vehicleService;
-        private readonly IMemoryService _memoryService;
+        InitializeComponent();
+        _vehicleService = vehicleService;
+        _memoryService = memoryService;
+        BindingContext = this;
 
-        public ObservableCollection<VehicleModelDto> Vehicles { get; } = new();
-        public ICommand NavigateToVehicleCommand { get; }
-        private bool _isNavigating;
-
-        public FleetPage(IVehicleService vehicleService, IMemoryService memoryService)
+        NavigateToVehicleCommand = new Command<object>(async param =>
         {
-            InitializeComponent();
-            _vehicleService = vehicleService;
-            _memoryService = memoryService;
-            BindingContext = this;
-
-            NavigateToVehicleCommand = new Command<object>(async param =>
-            {
-                if (_isNavigating) return;
-                _isNavigating = true;
-
-                try
-                {
-                    if (param == null) return;
-                    
-                    var idStr = param.ToString();
-                    if (Guid.TryParse(idStr, out var parsed))
-                    {
-                        await Shell.Current.GoToAsync($"details?VehicleId={idStr}");
-                    }
-                }
-                catch(Exception ex)
-                {
-                    try { await DisplayAlert("Błąd", "Nie udało się otworzyć szczegółów pojazdu."+ex,  "OK"); } catch { }
-                }
-                finally
-                {
-                    _isNavigating = false;
-                }
-            });
-        }
-
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-            await LoadAsync();
-        }
-        private async void OnRefreshIconTapped(object sender, EventArgs e) => await LoadAsync(false);
-
-        private async Task LoadAsync(bool withCache = true)
-        {
-            ErrorLabel.IsVisible = false;
-            NoDataLabel.IsVisible = false;
-            Loader.IsVisible = true;
-            Loader.IsRunning = true;
-
-            Vehicles.Clear();
+            if (_isNavigating) return;
+            _isNavigating = true;
 
             try
             {
-                VehicleListModel result;
-                if (withCache)
-                {
-                    result = await _vehicleService.GetVehicles();
-                }
-                else
-                {
-                    result = await _vehicleService.GetVehicles(false);
-                }
+                if (param == null) return;
 
-                if (result == null || result.Vehicles == null || !result.Vehicles.Any())
+                var idStr = param.ToString();
+                if (Guid.TryParse(idStr, out _))
                 {
-                    NoDataLabel.IsVisible = true;
-                    return;
-                }
-
-                foreach (var v in result.Vehicles.OrderBy(v => v.Name ?? string.Empty))
-                {
-                    Debug.WriteLine($"ADD Vehicle {v.Id} {v.Icon} - Color: R={v.Color.Red:F3} G={v.Color.Green:F3} B={v.Color.Blue:F3} A={v.Color.Alpha:F3}; ");
-                    Debug.WriteLine($"ADD Vehicle {v.Id} {v.Icon} - Color: R={v.Color.Red:F3} G={v.Color.Green:F3} B={v.Color.Blue:F3} A={v.Color.Alpha:F3}; ");
-                    Debug.WriteLine($"ADD Vehicle {v.Id} {v.Icon} - Color: R={v.Color.Red:F3} G={v.Color.Green:F3} B={v.Color.Blue:F3} A={v.Color.Alpha:F3}; ");
-                    Debug.WriteLine($"ADD Vehicle {v.Id} {v.Icon} - Color: R={v.Color.Red:F3} G={v.Color.Green:F3} B={v.Color.Blue:F3} A={v.Color.Alpha:F3}; Br");
-                    Vehicles.Add(v);
+                    await Shell.Current.GoToAsync($"details?VehicleId={idStr}");
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"LoadAsync exception: {ex}");
-                try
-                {
-                    ErrorLabel.Text = "Wystąpił błąd podczas pobierania listy pojazdów.";
-                    ErrorLabel.IsVisible = true;
-                }
-                catch { /* ignore UI failure */ }
+                try { await DisplayAlert("Błąd", "Nie udało się otworzyć szczegółów pojazdu." + ex, "OK"); } catch { }
             }
             finally
             {
-                Loader.IsRunning = false;
-                Loader.IsVisible = false;
+                _isNavigating = false;
             }
+        });
+    }
+
+    protected override async void OnAppearing()
+    {
+        base.OnAppearing();
+        await LoadAsync();
+    }
+
+    private async void OnRefreshIconTapped(object sender, EventArgs e) => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        ErrorLabel.IsVisible = false;
+        NoDataLabel.IsVisible = false;
+        Loader.IsVisible = true;
+        Loader.IsRunning = true;
+
+        Vehicles.Clear();
+
+        try
+        {
+            var vehicles = await _vehicleService.GetVehicles();
+
+            if (vehicles == null || vehicles.Count == 0)
+            {
+                NoDataLabel.IsVisible = true;
+                return;
+            }
+
+            foreach (var v in vehicles.OrderBy(v => v.Name ?? string.Empty))
+            {
+                Vehicles.Add(v);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"LoadAsync exception: {ex}");
+            try
+            {
+                ErrorLabel.Text = "Wystąpił błąd podczas pobierania listy pojazdów.";
+                ErrorLabel.IsVisible = true;
+            }
+            catch { }
+        }
+        finally
+        {
+            Loader.IsRunning = false;
+            Loader.IsVisible = false;
         }
     }
 }

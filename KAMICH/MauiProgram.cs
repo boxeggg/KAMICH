@@ -28,7 +28,7 @@ namespace KAMICH
             builder.Services.AddTransient<IVehicleService, VehicleService>();
             builder.Services.AddSingleton<HttpClient>(sp => new HttpClient
             {
-                BaseAddress = new Uri("https://api.fm-track.com/"),
+                BaseAddress = new Uri("http://localhost:8080/"),
                 Timeout = TimeSpan.FromSeconds(30)
             });
 
