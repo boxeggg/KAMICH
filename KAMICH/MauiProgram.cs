@@ -28,7 +28,7 @@ namespace KAMICH
             builder.Services.AddTransient<IVehicleService, VehicleService>();
             builder.Services.AddSingleton<HttpClient>(sp => new HttpClient
             {
-                BaseAddress = new Uri("http://localhost:8080/"),
+                BaseAddress = new Uri("http://10.0.2.2:8080/"),
                 Timeout = TimeSpan.FromSeconds(30)
             });
 
