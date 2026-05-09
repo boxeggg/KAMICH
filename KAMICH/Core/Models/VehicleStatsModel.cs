@@ -8,8 +8,6 @@ namespace KAMICH.Core.Models
 {
     public record VehicleStatsModel
     {
-        private double _nominalFuelConsumption;
-
         public double FuelPrice { get; set; }
         public double HourlyPrice { get; set; }
         public double OperatorPrice { get; set; }
