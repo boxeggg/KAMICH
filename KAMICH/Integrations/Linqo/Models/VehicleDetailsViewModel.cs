@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
-namespace KAMICH.Integrations.Linqo.Models
+namespace KAMICH.Integrations.Linqo.Models;
+
+public class VehicleDetailsViewModel
 {
-    public class VehicleDetailsViewModel
-    {
-        public string Name { get; set; }
-        public DateTimeOffset? FirstIgnitionOn { get; set; }
-        public DateTimeOffset? LastIgnitionOff { get; set; }
-        public double? HoursBetweenFirstOnAndLastOff { get; set; }
-        public double? DailyMileage { get; set; }
-        public string FirstIgnitionOnPoland => FirstIgnitionOn?.ToString("HH:mm") ?? null;
-        public string LastIgnitionOffPoland => LastIgnitionOff?.ToString("HH:mm") ?? null;
-        public Color? CustomColor { get; set; }
-        public string? CustomIcon { get; set; }
-        
-    }
+    [JsonPropertyName("name")] public string Name { get; set; }
+    [JsonPropertyName("firstIgnitionOn")] public DateTimeOffset? FirstIgnitionOn { get; set; }
+    [JsonPropertyName("lastIgnitionOff")] public DateTimeOffset? LastIgnitionOff { get; set; }
+    [JsonPropertyName("hoursBetweenFirstOnAndLastOff")] public double? HoursBetweenFirstOnAndLastOff { get; set; }
+    [JsonPropertyName("dailyMileage")] public double? DailyMileage { get; set; }
 
+    [JsonIgnore] public string FirstIgnitionOnPoland => FirstIgnitionOn?.ToString("HH:mm");
+    [JsonIgnore] public string LastIgnitionOffPoland => LastIgnitionOff?.ToString("HH:mm");
 
+    [JsonIgnore] public Color? CustomColor { get; set; }
+    [JsonIgnore] public string? CustomIcon { get; set; }
 }
