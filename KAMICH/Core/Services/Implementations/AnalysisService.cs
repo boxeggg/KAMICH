@@ -59,4 +59,34 @@ public class AnalysisService : IAnalysisService
             return income;
         return 0;
     }
+
+    public async Task<double> CalculateIncomeFromStats(List<MemoryVehicleDetails> vehicles, string statsType)
+    {
+        if (vehicles.Count == 0) return 0;
+        var settings = await _settingsService.LoadAsync();
+
+        _incomeCache.Clear();
+
+        foreach (var vehicle in vehicles)
+        {
+            var stats = await _vehicleService.GetStats(vehicle.Id, statsType);
+            var latest = stats.FirstOrDefault();
+            if (latest == null) continue;
+
+            var workHours = latest.TotalHours ?? 0;
+
+            var fuelPrice = vehicle.FuelPrice ?? settings.GlobalVehicleSettings.FuelPrice;
+            var hourlyPrice = vehicle.HourlyPrice ?? settings.GlobalVehicleSettings.HourlyPrice;
+            var operatorPrice = vehicle.OperatorPrice ?? settings.GlobalVehicleSettings.OperatorPrice;
+            var fuelConsumptionPerHour = settings.GlobalVehicleSettings.FuelConsumptionPerHour;
+
+            var income = (hourlyPrice * workHours)
+                       - (operatorPrice * workHours)
+                       - (fuelConsumptionPerHour * workHours * fuelPrice);
+
+            _incomeCache[vehicle.Id] = income;
+        }
+
+        return _incomeCache.Values.Sum();
+    }
 }

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="KAMICH.Pages.StatsPage"
+    Title="Statystyki"
+    BackgroundColor="{DynamicResource PageBackgroundColor}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="14" Spacing="12">
+
+            <!-- Tabs -->
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="6">
+                <Button x:Name="BtnWeekly" Text="Tygodniowe" Clicked="OnWeeklyClicked" />
+                <Button x:Name="BtnMonthly" Text="Miesięczne" Grid.Column="1" Clicked="OnMonthlyClicked" />
+                <Button x:Name="BtnYearly" Text="Roczne" Grid.Column="2" Clicked="OnYearlyClicked" />
+            </Grid>
+
+            <!-- Loading -->
+            <ActivityIndicator x:Name="LoadingIndicator" IsRunning="False" IsVisible="False"
+                               HorizontalOptions="Center" />
+
+            <!-- Empty state -->
+            <Label x:Name="EmptyLabel" Text="Brak danych do wyświetlenia"
+                   IsVisible="False" HorizontalOptions="Center" Opacity="0.7" />
+
+            <!-- Stats list -->
+            <CollectionView x:Name="StatsCollection" SelectionMode="None">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Frame Style="{StaticResource KpiFrame}" Margin="0,0,0,8">
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="{Binding PeriodLabel}"
+                                       FontSize="16" FontAttributes="Bold" />
+
+                                <Grid ColumnDefinitions="*,*" RowSpacing="4">
+                                    <VerticalStackLayout Grid.Column="0" Spacing="2">
+                                        <Label Text="{Binding TotalHours, StringFormat='{}{0:F1} h'}"
+                                               FontSize="20" FontAttributes="Bold" />
+                                        <Label Text="Czas pracy" FontSize="11" Opacity="0.7" />
+                                    </VerticalStackLayout>
+
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                        <Label Text="{Binding TotalMileage, StringFormat='{}{0:F1} km'}"
+                                               FontSize="20" FontAttributes="Bold" />
+                                        <Label Text="Przebieg" FontSize="11" Opacity="0.7" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Frame>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

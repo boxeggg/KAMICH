@@ -51,12 +51,12 @@ public partial class FleetPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await LoadAsync();
+        await LoadAsync(withCacheBypass: false);
     }
 
-    private async void OnRefreshIconTapped(object sender, EventArgs e) => await LoadAsync();
+    private async void OnRefreshIconTapped(object sender, EventArgs e) => await LoadAsync(withCacheBypass: true);
 
-    private async Task LoadAsync()
+    private async Task LoadAsync(bool withCacheBypass)
     {
         ErrorLabel.IsVisible = false;
         NoDataLabel.IsVisible = false;
@@ -67,7 +67,7 @@ public partial class FleetPage : ContentPage
 
         try
         {
-            var vehicles = await _vehicleService.GetVehicles();
+            var vehicles = await _vehicleService.GetVehicles(bypassCache: withCacheBypass);
 
             if (vehicles == null || vehicles.Count == 0)
             {

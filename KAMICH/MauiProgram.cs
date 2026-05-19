@@ -26,9 +26,10 @@ namespace KAMICH
             builder.Services.AddTransient<IHomeService, HomeService>();
             builder.Services.AddSingleton<IAnalysisService, AnalysisService>();
             builder.Services.AddTransient<IVehicleService, VehicleService>();
+            builder.Services.AddTransient<Pages.StatsPage>();
             builder.Services.AddSingleton<HttpClient>(sp => new HttpClient
             {
-                BaseAddress = new Uri("http://10.0.2.2:8080/"),
+                BaseAddress = new Uri("https://kamich-api-production.up.railway.app/"),
                 Timeout = TimeSpan.FromSeconds(30)
             });
 

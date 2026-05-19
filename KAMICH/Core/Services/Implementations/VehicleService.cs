@@ -23,11 +23,14 @@ public class VehicleService : IVehicleService
         _cacheService = cacheService;
     }
 
-    public async Task<List<VehicleModelDto>> GetVehicles(CancellationToken ct = default)
+    public async Task<List<VehicleModelDto>> GetVehicles(CancellationToken ct = default, bool bypassCache = false)
     {
-        var cached = await _cacheService.GetCachedVehicles();
-        if (cached != null)
-            return cached;
+        if (!bypassCache)
+        {
+            var cached = await _cacheService.GetCachedVehicles();
+            if (cached != null)
+                return cached;
+        }
 
         using var req = new HttpRequestMessage(HttpMethod.Get, "api/vehicles");
         req.Headers.Add("X-Api-Key", ApiKey);
@@ -74,5 +77,17 @@ public class VehicleService : IVehicleService
         }
 
         return vm;
+    }
+
+    public async Task<List<StatsViewModel>> GetStats(Guid vehicleId, string type, CancellationToken ct = default)
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Get,
+            $"api/vehicles/{vehicleId}/stats/{type}/history");
+        req.Headers.Add("X-Api-Key", ApiKey);
+
+        using var resp = await _http.SendAsync(req, ct);
+        resp.EnsureSuccessStatusCode();
+        var text = await resp.Content.ReadAsStringAsync(ct);
+        return JsonSerializer.Deserialize<List<StatsViewModel>>(text, JsonOpts) ?? new();
     }
 }

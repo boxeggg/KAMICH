@@ -46,6 +46,11 @@ public partial class VehicleDetails : ContentPage
         await Shell.Current.GoToAsync($"customization?VehicleId={_vehicleId}");
     }
 
+    private async void OnStatsTapped(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync($"stats?VehicleId={_vehicleId}");
+    }
+
 
     private async Task LoadDataAsync(Guid id)
     {

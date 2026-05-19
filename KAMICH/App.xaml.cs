@@ -29,7 +29,6 @@ namespace KAMICH
 
                     if (model.DarkMode != Preferences.Get("settings.dark_mode", false))
                     {
-                        // zapisz preferencję lokalnie żeby była spójna
                         Preferences.Set("settings.dark_mode", model.DarkMode);
                     }
 

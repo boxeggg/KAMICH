@@ -1,4 +1,4 @@
-﻿using KAMICH.Core.Models;
+using KAMICH.Core.Models;
 
 namespace KAMICH.Core.Services.Implementations;
 
@@ -12,31 +12,56 @@ public class HomeService : IHomeService
         _memoryService = memoryService;
         _analysisService = analysisService;
     }
+
     public async Task<HomePageViewModel> GetHomePageViewModel()
     {
-        var trackedVehicles =  _memoryService.GetMemoryVehicles().Where(x => x.IsTracked == true).ToList();
-        if (trackedVehicles.Count == 0) return new HomePageViewModel();
-        var dailyIncome = await _analysisService.CalculateDailyIncome(trackedVehicles);
-        
-        List<SimpleVehicleVm> vms = new List<SimpleVehicleVm>(); 
-        foreach (var item in trackedVehicles)
+        return await GetViewModel("DAILY");
+    }
+
+    public async Task<HomePageViewModel> GetHomePageViewModel(string period)
+    {
+        return await GetViewModel(period);
+    }
+
+    private async Task<HomePageViewModel> GetViewModel(string period)
+    {
+        var trackedVehicles = _memoryService.GetMemoryVehicles().Where(x => x.IsTracked).ToList();
+        if (trackedVehicles.Count == 0)
+            return new HomePageViewModel { PeriodLabel = GetLabel(period) };
+
+        double totalIncome;
+
+        if (period == "DAILY")
         {
-            var model = new SimpleVehicleVm
-            {
-                Name = item.Name,
-                Id = item.Id,
-                Income = _analysisService.GetIncomeForVehicle(item.Id),
-                Color = item.CustomColor,
-                Icon = item.CustomIcon
-            };
-            vms.Add(model);
+            totalIncome = await _analysisService.CalculateDailyIncome(trackedVehicles);
+        }
+        else
+        {
+            totalIncome = await _analysisService.CalculateIncomeFromStats(trackedVehicles, period);
         }
 
-        var vm = new HomePageViewModel()
+        var vms = trackedVehicles.Select(item => new SimpleVehicleVm
         {
-            DailyIncome = dailyIncome,
+            Name = item.Name,
+            Id = item.Id,
+            Income = _analysisService.GetIncomeForVehicle(item.Id),
+            Color = item.CustomColor,
+            Icon = item.CustomIcon
+        }).ToList();
+
+        return new HomePageViewModel
+        {
+            PeriodLabel = GetLabel(period),
+            TotalIncome = totalIncome,
             Vehicles = vms
         };
-        return vm; 
     }
+
+    private static string GetLabel(string period) => period switch
+    {
+        "DAILY" => "Przychód dzienny",
+        "MONTHLY" => "Przychód miesięczny",
+        "YEARLY" => "Przychód roczny",
+        _ => "Przychód"
+    };
 }

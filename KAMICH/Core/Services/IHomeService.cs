@@ -4,5 +4,6 @@ namespace KAMICH.Core.Services;
 
 public interface IHomeService
 {
-    public Task<HomePageViewModel>  GetHomePageViewModel();
+    Task<HomePageViewModel> GetHomePageViewModel();
+    Task<HomePageViewModel> GetHomePageViewModel(string period);
 }

@@ -131,7 +131,11 @@ public partial class VehicleCustomizationPage : ContentPage
                 ? f
                 : 0.0;
             model.IsTracked = TrackingSwitch.IsToggled;
-            if(await _memoryService.SetMemoryVehicle(model)) await Shell.Current.GoToAsync($"..");
+            if(await _memoryService.SetMemoryVehicle(model))
+            {
+                await _vehicleService.GetVehicles(bypassCache: true);
+                await Shell.Current.GoToAsync($"..");
+            }
             else await DisplayAlert("Warning", "Something went wrong", "OK");
 
         }

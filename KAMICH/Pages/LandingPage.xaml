@@ -1,67 +1,129 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="KAMICH.Pages.LandingPage"
-             Title="Strona główna"
-             BackgroundColor="{DynamicResource PageBackgroundColor}">
+             Title="Strona główna">
 
     <ContentPage.Resources>
-        <!-- Optional: szybki styl dla ramek elementów -->
-        <Style TargetType="Frame">
-            <Setter Property="CornerRadius" Value="10" />
-            <Setter Property="HasShadow" Value="True" />
-            <Setter Property="Padding" Value="10" />
-            <Setter Property="Margin" Value="0,0,0,8" />
-        </Style>
+        <Color x:Key="AccentGreen">#2E7D32</Color>
+        <Color x:Key="AccentGreenLight">#E8F5E9</Color>
+        <Color x:Key="AccentGreenDark">#1B5E20</Color>
+        <Color x:Key="CardLight">#FFFFFF</Color>
+        <Color x:Key="CardDark">#1E1E1E</Color>
+        <Color x:Key="SurfaceLight">#F5F5F5</Color>
+        <Color x:Key="SurfaceDark">#121212</Color>
+        <Color x:Key="TabInactiveLight">#E0E0E0</Color>
+        <Color x:Key="TabInactiveDark">#2C2C2C</Color>
+        <Color x:Key="SubtextLight">#757575</Color>
+        <Color x:Key="SubtextDark">#9E9E9E</Color>
     </ContentPage.Resources>
 
-    <ContentPage.Content>
+    <Grid BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
         <ScrollView>
-            <VerticalStackLayout Padding="20" Spacing="18">
+            <VerticalStackLayout Padding="16,12" Spacing="16">
 
-                <!-- Nagłówek -->
-                <Grid ColumnDefinitions="*,Auto" VerticalOptions="Center" HorizontalOptions="Fill">
-                    <VerticalStackLayout>
-                        <Label Text="Przychód dzienny" FontSize="14" Opacity="0.8"/>
-                        <Label Text="{Binding DailyIncome, StringFormat='{}{0:N2} zł'}"
-                               FontSize="28" FontAttributes="Bold" TextColor="Green"/>
+                <!-- Segmented Tab Control -->
+                <Frame Padding="4" CornerRadius="12" HasShadow="False"
+                       BackgroundColor="{AppThemeBinding Light={StaticResource TabInactiveLight}, Dark={StaticResource TabInactiveDark}}"
+                       BorderColor="Transparent">
+                    <Grid ColumnDefinitions="*,*,*" ColumnSpacing="4">
+                        <Frame x:Name="TabDaily" Padding="8,10" CornerRadius="10" HasShadow="False"
+                               BorderColor="Transparent">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnDailyClicked" />
+                            </Frame.GestureRecognizers>
+                            <Label x:Name="TabDailyLabel" Text="Dzienny" HorizontalTextAlignment="Center"
+                                   FontSize="13" FontAttributes="Bold" />
+                        </Frame>
+
+                        <Frame x:Name="TabMonthly" Padding="8,10" CornerRadius="10" HasShadow="False"
+                               BorderColor="Transparent" Grid.Column="1">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnMonthlyClicked" />
+                            </Frame.GestureRecognizers>
+                            <Label x:Name="TabMonthlyLabel" Text="Miesięczny" HorizontalTextAlignment="Center"
+                                   FontSize="13" FontAttributes="Bold" />
+                        </Frame>
+
+                        <Frame x:Name="TabYearly" Padding="8,10" CornerRadius="10" HasShadow="False"
+                               BorderColor="Transparent" Grid.Column="2">
+                            <Frame.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="OnYearlyClicked" />
+                            </Frame.GestureRecognizers>
+                            <Label x:Name="TabYearlyLabel" Text="Roczny" HorizontalTextAlignment="Center"
+                                   FontSize="13" FontAttributes="Bold" />
+                        </Frame>
+                    </Grid>
+                </Frame>
+
+                <!-- Hero Income Card -->
+                <Frame Padding="20" CornerRadius="16" HasShadow="False" BorderColor="Transparent"
+                       BackgroundColor="{StaticResource AccentGreen}">
+                    <VerticalStackLayout Spacing="4">
+                        <Label x:Name="PeriodTitle" Text="{Binding PeriodLabel}"
+                               FontSize="13" TextColor="#C8E6C9" />
+                        <Label Text="{Binding TotalIncome, StringFormat='{}{0:N2} zł'}"
+                               FontSize="34" FontAttributes="Bold" TextColor="White" />
+                        <Label Text="Szacowany przychód netto" FontSize="11" TextColor="#A5D6A7" Margin="0,4,0,0" />
                     </VerticalStackLayout>
+                </Frame>
 
-                    <!-- Mały summary badge (opcjonalne) -->
-                    <Frame Grid.Column="1" VerticalOptions="Center" Padding="6,4" CornerRadius="12" HasShadow="False" BackgroundColor="#eef7ee">
-                        <Label Text="PLN" FontSize="12" FontAttributes="Bold" TextColor="Black" />
-                    </Frame>
-                </Grid>
-                
-                <CollectionView ItemsSource="{Binding Vehicles}" SelectionMode="None"
-                                VerticalOptions="FillAndExpand">
+                <!-- Loading -->
+                <ActivityIndicator x:Name="LoadingIndicator" IsRunning="False" IsVisible="False"
+                                   HorizontalOptions="Center" Color="{StaticResource AccentGreen}" />
+
+                <!-- Section Header -->
+                <Label Text="Pojazdy" FontSize="15" FontAttributes="Bold" Margin="0,4,0,0"
+                       TextColor="{AppThemeBinding Light={StaticResource SubtextLight}, Dark={StaticResource SubtextDark}}" />
+
+                <!-- Vehicle List -->
+                <CollectionView ItemsSource="{Binding Vehicles}" SelectionMode="None">
                     <CollectionView.EmptyView>
-                        <Label Text="Brak pojazdów do wyświetlenia" HorizontalOptions="Center" VerticalOptions="CenterAndExpand" Opacity="0.7"/>
+                        <Frame Padding="24" CornerRadius="12" HasShadow="False" BorderColor="Transparent"
+                               BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}">
+                            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                                <Label Text="&#xf1b9;" FontFamily="FASolid" FontSize="32"
+                                       HorizontalOptions="Center" Opacity="0.3" />
+                                <Label Text="Brak śledzonych pojazdów" HorizontalOptions="Center"
+                                       FontSize="14" Opacity="0.5" />
+                                <Label Text="Dodaj pojazd w zakładce Flota" HorizontalOptions="Center"
+                                       FontSize="12" Opacity="0.3" />
+                            </VerticalStackLayout>
+                        </Frame>
                     </CollectionView.EmptyView>
 
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
-                            <Frame BackgroundColor="{Binding Color}">
-                                <Grid ColumnDefinitions="48,*,Auto" RowDefinitions="Auto" VerticalOptions="Center">
-                                    <!-- Ikona -->
-                                    <Label Text="{Binding Icon}"
-                                           FontSize="26"
-                                           FontFamily="FASolid"
-                                           HorizontalOptions="Center"
-                                           VerticalOptions="Center"
-                                           Margin="0" />
-                                    
-                                    <VerticalStackLayout Grid.Column="1" Spacing="2" Margin="8,0">
-                                        <Label Text="{Binding Name}" FontSize="16" FontAttributes="Bold" LineBreakMode="TailTruncation"/>
+                            <Frame Padding="14" CornerRadius="12" HasShadow="False" Margin="0,0,0,8"
+                                   BorderColor="Transparent"
+                                   BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}">
+                                <Grid ColumnDefinitions="44,*,Auto" ColumnSpacing="12" VerticalOptions="Center">
+
+                                    <!-- Vehicle Icon -->
+                                    <Border WidthRequest="44" HeightRequest="44"
+                                            StrokeShape="RoundRectangle 10"
+                                            Stroke="Transparent" StrokeThickness="0"
+                                            Background="{Binding Color}"
+                                            HorizontalOptions="Center" VerticalOptions="Center">
+                                        <Label Text="{Binding Icon}" FontFamily="FASolid" FontSize="20"
+                                               HorizontalOptions="Center" VerticalOptions="Center"
+                                               TextColor="White" />
+                                    </Border>
+
+                                    <!-- Name -->
+                                    <Label Grid.Column="1" Text="{Binding Name}"
+                                           FontSize="15" FontAttributes="Bold"
+                                           VerticalTextAlignment="Center"
+                                           LineBreakMode="TailTruncation" />
+
+                                    <!-- Income -->
+                                    <VerticalStackLayout Grid.Column="2" VerticalOptions="Center"
+                                                         HorizontalOptions="End">
+                                        <Label Text="{Binding Income, StringFormat='{}{0:N2} zł'}"
+                                               FontSize="15" FontAttributes="Bold"
+                                               HorizontalTextAlignment="End"
+                                               TextColor="{StaticResource AccentGreen}" />
                                     </VerticalStackLayout>
-                                    
-                                    <Label Grid.Column="2"
-                                           Text="{Binding Income, StringFormat='{}{0:N2} zł'}"
-                                           FontSize="14"
-                                           FontAttributes="Bold"
-                                           VerticalOptions="Center"
-                                           HorizontalOptions="End"
-                                           TextColor="DarkBlue"/>
                                 </Grid>
                             </Frame>
                         </DataTemplate>
@@ -70,5 +132,5 @@
 
             </VerticalStackLayout>
         </ScrollView>
-    </ContentPage.Content>
+    </Grid>
 </ContentPage>
