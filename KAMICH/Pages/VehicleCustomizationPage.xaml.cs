@@ -153,7 +153,16 @@ public partial class VehicleCustomizationPage : ContentPage
                 Name = vehicles.FirstOrDefault(x => x.Id == _vehicleId)?.Name,
                 Id = _vehicleId,
                 CustomColor = SelectedColor,
-                CustomIcon = SelectedIcon.IconGlyph
+                CustomIcon = SelectedIcon.IconGlyph,
+                IsTracked = TrackingSwitch.IsToggled,
+                FuelPrice = double.TryParse((FuelPriceEntry?.Text ?? "").Trim().Replace(',', '.'),
+                    NumberStyles.Number, CultureInfo.InvariantCulture, out var fp) ? fp : 0.0,
+                HourlyPrice = double.TryParse((HourlyRateEntry?.Text ?? "").Trim().Replace(',', '.'),
+                    NumberStyles.Number, CultureInfo.InvariantCulture, out var hp) ? hp : 0.0,
+                OperatorPrice = double.TryParse((OperatorRateEntry?.Text ?? "").Trim().Replace(',', '.'),
+                    NumberStyles.Number, CultureInfo.InvariantCulture, out var op) ? op : 0.0,
+                FuelConsumptionPerHour = double.TryParse((FuelConsumptionEntry?.Text ?? "").Trim().Replace(',', '.'),
+                    NumberStyles.Number, CultureInfo.InvariantCulture, out var fcp) ? fcp : 0.0
             };
             if(await _memoryService.SetMemoryVehicle(newModel)) await Shell.Current.GoToAsync($"..");
             else await DisplayAlert("Warning", "Something went wrong", "OK");
