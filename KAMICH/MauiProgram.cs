@@ -21,6 +21,19 @@ namespace KAMICH
                     fonts.AddFont("Inter-Regular.ttf", "InterRegular");
                     fonts.AddFont("Inter-SemiBold.ttf", "InterSemiBold");
                     fonts.AddFont("fa-solid-900.ttf", "FASolid");
+                })
+                .ConfigureMauiHandlers(handlers =>
+                {
+#if IOS
+                    Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("DismissKeyboard", (handler, view) =>
+                    {
+                        handler.PlatformView.ShouldReturn = textField =>
+                        {
+                            textField.ResignFirstResponder();
+                            return true;
+                        };
+                    });
+#endif
                 });
             builder.Services.AddSingleton<ISettingsService, SettingsService>();
             builder.Services.AddSingleton<IMemoryService, MemoryService>();
