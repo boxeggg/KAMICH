@@ -9,18 +9,27 @@ public class VehicleService : IVehicleService
     private readonly HttpClient _http;
     private readonly IMemoryService _memoryService;
     private readonly ICacheService _cacheService;
-    private const string ApiKey = "0S2qVxWCGkaqgVcVCnB_jKZQt44yRe3D";
+    private readonly ISettingsService _settings;
 
     private static readonly JsonSerializerOptions JsonOpts = new(JsonSerializerDefaults.Web)
     {
         PropertyNameCaseInsensitive = true
     };
 
-    public VehicleService(HttpClient http, IMemoryService memoryService, ICacheService cacheService)
+    public VehicleService(HttpClient http, IMemoryService memoryService, ICacheService cacheService, ISettingsService settings)
     {
         _http = http;
         _memoryService = memoryService;
         _cacheService = cacheService;
+        _settings = settings;
+    }
+
+    private async Task<string> GetApiKeyOrThrow()
+    {
+        var key = await _settings.GetApiKeyAsync();
+        if (string.IsNullOrEmpty(key))
+            throw new InvalidOperationException("Brak klucza API. Skonfiguruj go w ustawieniach.");
+        return key;
     }
 
     public async Task<List<VehicleModelDto>> GetVehicles(CancellationToken ct = default, bool bypassCache = false)
@@ -32,8 +41,9 @@ public class VehicleService : IVehicleService
                 return cached;
         }
 
+        var apiKey = await GetApiKeyOrThrow();
         using var req = new HttpRequestMessage(HttpMethod.Get, "api/vehicles");
-        req.Headers.Add("X-Api-Key", ApiKey);
+        req.Headers.Add("X-Api-Key", apiKey);
 
         using var resp = await _http.SendAsync(req, ct);
         resp.EnsureSuccessStatusCode();
@@ -60,9 +70,10 @@ public class VehicleService : IVehicleService
         var fromStr = from.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ssZ", CultureInfo.InvariantCulture);
         var toStr = to.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ssZ", CultureInfo.InvariantCulture);
 
+        var apiKey = await GetApiKeyOrThrow();
         using var req = new HttpRequestMessage(HttpMethod.Get,
             $"api/vehicles/{objectId}/details?from={Uri.EscapeDataString(fromStr)}&to={Uri.EscapeDataString(toStr)}");
-        req.Headers.Add("X-Api-Key", ApiKey);
+        req.Headers.Add("X-Api-Key", apiKey);
 
         using var resp = await _http.SendAsync(req, ct);
         resp.EnsureSuccessStatusCode();
@@ -81,13 +92,46 @@ public class VehicleService : IVehicleService
 
     public async Task<List<StatsViewModel>> GetStats(Guid vehicleId, string type, CancellationToken ct = default)
     {
+        var apiKey = await GetApiKeyOrThrow();
         using var req = new HttpRequestMessage(HttpMethod.Get,
             $"api/vehicles/{vehicleId}/stats/{type}/history");
-        req.Headers.Add("X-Api-Key", ApiKey);
+        req.Headers.Add("X-Api-Key", apiKey);
 
         using var resp = await _http.SendAsync(req, ct);
         resp.EnsureSuccessStatusCode();
         var text = await resp.Content.ReadAsStringAsync(ct);
         return JsonSerializer.Deserialize<List<StatsViewModel>>(text, JsonOpts) ?? new();
+    }
+
+    public async Task<StatsViewModel?> GetStatsByPeriod(Guid vehicleId, string type, DateTime periodStart, CancellationToken ct = default)
+    {
+        var apiKey = await GetApiKeyOrThrow();
+        var dateStr = periodStart.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        using var req = new HttpRequestMessage(HttpMethod.Get,
+            $"api/vehicles/{vehicleId}/stats/{type}?periodStart={dateStr}");
+        req.Headers.Add("X-Api-Key", apiKey);
+
+        using var resp = await _http.SendAsync(req, ct);
+        if (resp.StatusCode == System.Net.HttpStatusCode.NotFound) return null;
+        resp.EnsureSuccessStatusCode();
+        var text = await resp.Content.ReadAsStringAsync(ct);
+        if (string.IsNullOrWhiteSpace(text)) return null;
+        return JsonSerializer.Deserialize<StatsViewModel>(text, JsonOpts);
+    }
+
+    public async Task<WorkLogDto?> GetWorkLog(Guid vehicleId, DateTime date, CancellationToken ct = default)
+    {
+        var apiKey = await GetApiKeyOrThrow();
+        var dateStr = date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+        using var req = new HttpRequestMessage(HttpMethod.Get,
+            $"api/vehicles/{vehicleId}/worklog?date={dateStr}");
+        req.Headers.Add("X-Api-Key", apiKey);
+
+        using var resp = await _http.SendAsync(req, ct);
+        if (resp.StatusCode == System.Net.HttpStatusCode.NotFound) return null;
+        resp.EnsureSuccessStatusCode();
+        var text = await resp.Content.ReadAsStringAsync(ct);
+        if (string.IsNullOrWhiteSpace(text)) return null;
+        return JsonSerializer.Deserialize<WorkLogDto>(text, JsonOpts);
     }
 }

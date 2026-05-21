@@ -15,6 +15,11 @@ namespace KAMICH.Core.Services.Implementations
         const string OperatorPrice = "settings.operator_price";
         const string FuelConsumption = "settings.fuel_consumption";
         const string KeyApiKey = "settings.external_api_key";
+        const string KeyOnboardingDone = "settings.onboarding_done";
+        const string KeyFixedHotel = "settings.fixed_hotel";
+        const string KeyFixedTransport = "settings.fixed_transport";
+        const string KeyFixedService = "settings.fixed_service";
+        const string KeyFixedOther = "settings.fixed_other";
 
         public async Task<AppSettingsModel> LoadAsync()
         {
@@ -27,8 +32,15 @@ namespace KAMICH.Core.Services.Implementations
                     OperatorPrice = Preferences.Get(OperatorPrice, 0.0),
                     HourlyPrice = Preferences.Get(HourlyPrice, 0.0),
                 },
-                ApiKey = await TryGetSecureAsync(KeyApiKey)
-            };  
+                ApiKey = await TryGetSecureAsync(KeyApiKey),
+                MonthlyFixedCosts = new FixedCostsModel
+                {
+                    Hotel = Preferences.Get(KeyFixedHotel, 0.0),
+                    Transport = Preferences.Get(KeyFixedTransport, 0.0),
+                    Service = Preferences.Get(KeyFixedService, 0.0),
+                    Other = Preferences.Get(KeyFixedOther, 0.0),
+                }
+            };
             return model;
         }
 
@@ -39,6 +51,10 @@ namespace KAMICH.Core.Services.Implementations
             Preferences.Set(HourlyPrice, model.GlobalVehicleSettings.HourlyPrice);
             Preferences.Set(OperatorPrice, model.GlobalVehicleSettings.OperatorPrice);
             Preferences.Set(FuelConsumption, model.GlobalVehicleSettings.FuelConsumptionPerHour);
+            Preferences.Set(KeyFixedHotel, model.MonthlyFixedCosts.Hotel);
+            Preferences.Set(KeyFixedTransport, model.MonthlyFixedCosts.Transport);
+            Preferences.Set(KeyFixedService, model.MonthlyFixedCosts.Service);
+            Preferences.Set(KeyFixedOther, model.MonthlyFixedCosts.Other);
             await SetApiKeyAsync(model.ApiKey);
         }
 
@@ -50,14 +66,23 @@ namespace KAMICH.Core.Services.Implementations
             try
             {
                 if (string.IsNullOrEmpty(value))
+                {
                     SecureStorage.Remove(KeyApiKey);
+                    Preferences.Set(KeyOnboardingDone, false);
+                }
                 else
+                {
                     await SecureStorage.SetAsync(KeyApiKey, value);
+                    Preferences.Set(KeyOnboardingDone, true);
+                }
+
             }
             catch
             {
             }
         }
+
+        public bool IsOnboardingDone() => Preferences.Get(KeyOnboardingDone, false);
 
         public void ResetNonSecrets()
         {

@@ -17,7 +17,7 @@ public class AnalysisService : IAnalysisService
         _settingsService = settingsService;
     }
     
-    public async Task<double> CalculateDailyIncome(List<MemoryVehicleDetails> vehicles)
+    public async Task<double> CalculateDailyIncome(CancellationToken cts, List<MemoryVehicleDetails> vehicles)
     {
         if (vehicles.Count == 0) return 0;
         var settings = await _settingsService.LoadAsync();
@@ -30,7 +30,7 @@ public class AnalysisService : IAnalysisService
 
         foreach (var vehicle in vehicles)
         {
-            var details = await _vehicleService.GetVehiclesDetails(vehicle.Id, from, to);
+            var details = await _vehicleService.GetVehiclesDetails(vehicle.Id, from, to, ct: cts);
 
             var workHours = details.HoursBetweenFirstOnAndLastOff ?? 0;
             var mileage = details.DailyMileage ?? 0;
@@ -38,7 +38,7 @@ public class AnalysisService : IAnalysisService
             var fuelPrice = vehicle.FuelPrice ?? settings.GlobalVehicleSettings.FuelPrice;
             var hourlyPrice = vehicle.HourlyPrice ?? settings.GlobalVehicleSettings.HourlyPrice;
             var operatorPrice = vehicle.OperatorPrice ?? settings.GlobalVehicleSettings.OperatorPrice;
-            var fuelConsumptionPerHour =  settings.GlobalVehicleSettings.FuelConsumptionPerHour; // vehicle needed
+            var fuelConsumptionPerHour = vehicle.FuelConsumptionPerHour ?? settings.GlobalVehicleSettings.FuelConsumptionPerHour;
 
             var income = (hourlyPrice * workHours)
                        - (operatorPrice * workHours)
@@ -53,14 +53,14 @@ public class AnalysisService : IAnalysisService
 
 
 
-    public double GetIncomeForVehicle(Guid vehicleId)
+    public double GetIncomeForVehicle(CancellationToken cts, Guid vehicleId)
     {
         if (_incomeCache.TryGetValue(vehicleId, out var income))
             return income;
         return 0;
     }
 
-    public async Task<double> CalculateIncomeFromStats(List<MemoryVehicleDetails> vehicles, string statsType)
+    public async Task<double> CalculateIncomeFromStats(CancellationToken cts, List<MemoryVehicleDetails> vehicles, string statsType)
     {
         if (vehicles.Count == 0) return 0;
         var settings = await _settingsService.LoadAsync();
@@ -69,7 +69,7 @@ public class AnalysisService : IAnalysisService
 
         foreach (var vehicle in vehicles)
         {
-            var stats = await _vehicleService.GetStats(vehicle.Id, statsType);
+            var stats = await _vehicleService.GetStats(vehicle.Id, statsType, ct: cts);
             var latest = stats.FirstOrDefault();
             if (latest == null) continue;
 
@@ -78,7 +78,61 @@ public class AnalysisService : IAnalysisService
             var fuelPrice = vehicle.FuelPrice ?? settings.GlobalVehicleSettings.FuelPrice;
             var hourlyPrice = vehicle.HourlyPrice ?? settings.GlobalVehicleSettings.HourlyPrice;
             var operatorPrice = vehicle.OperatorPrice ?? settings.GlobalVehicleSettings.OperatorPrice;
-            var fuelConsumptionPerHour = settings.GlobalVehicleSettings.FuelConsumptionPerHour;
+            var fuelConsumptionPerHour = vehicle.FuelConsumptionPerHour ?? settings.GlobalVehicleSettings.FuelConsumptionPerHour;
+
+            var income = (hourlyPrice * workHours)
+                       - (operatorPrice * workHours)
+                       - (fuelConsumptionPerHour * workHours * fuelPrice);
+
+            _incomeCache[vehicle.Id] = income;
+        }
+
+        return _incomeCache.Values.Sum();
+    }
+
+    public async Task<double> CalculateIncomeFromWorkLogs(CancellationToken cts, List<MemoryVehicleDetails> vehicles, DateTime date)
+    {
+        if (vehicles.Count == 0) return 0;
+        var settings = await _settingsService.LoadAsync();
+
+        _incomeCache.Clear();
+
+        foreach (var vehicle in vehicles)
+        {
+            var workLog = await _vehicleService.GetWorkLog(vehicle.Id, date, ct: cts);
+            var workHours = workLog?.HoursWorked ?? 0;
+
+            var fuelPrice = vehicle.FuelPrice ?? settings.GlobalVehicleSettings.FuelPrice;
+            var hourlyPrice = vehicle.HourlyPrice ?? settings.GlobalVehicleSettings.HourlyPrice;
+            var operatorPrice = vehicle.OperatorPrice ?? settings.GlobalVehicleSettings.OperatorPrice;
+            var fuelConsumptionPerHour = vehicle.FuelConsumptionPerHour ?? settings.GlobalVehicleSettings.FuelConsumptionPerHour;
+
+            var income = (hourlyPrice * workHours)
+                       - (operatorPrice * workHours)
+                       - (fuelConsumptionPerHour * workHours * fuelPrice);
+
+            _incomeCache[vehicle.Id] = income;
+        }
+
+        return _incomeCache.Values.Sum();
+    }
+
+    public async Task<double> CalculateIncomeFromStatsByPeriod(CancellationToken cts, List<MemoryVehicleDetails> vehicles, string statsType, DateTime periodStart)
+    {
+        if (vehicles.Count == 0) return 0;
+        var settings = await _settingsService.LoadAsync();
+
+        _incomeCache.Clear();
+
+        foreach (var vehicle in vehicles)
+        {
+            var stats = await _vehicleService.GetStatsByPeriod(vehicle.Id, statsType, periodStart, ct: cts);
+            var workHours = stats?.TotalHours ?? 0;
+
+            var fuelPrice = vehicle.FuelPrice ?? settings.GlobalVehicleSettings.FuelPrice;
+            var hourlyPrice = vehicle.HourlyPrice ?? settings.GlobalVehicleSettings.HourlyPrice;
+            var operatorPrice = vehicle.OperatorPrice ?? settings.GlobalVehicleSettings.OperatorPrice;
+            var fuelConsumptionPerHour = vehicle.FuelConsumptionPerHour ?? settings.GlobalVehicleSettings.FuelConsumptionPerHour;
 
             var income = (hourlyPrice * workHours)
                        - (operatorPrice * workHours)

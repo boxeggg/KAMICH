@@ -4,6 +4,12 @@
         <name>KAMICH</name>
     </assembly>
     <members>
+        <member name="M:KAMICH.WidgetHelper.SaveApiKeyForWorker(System.String)">
+            <summary>
+            Save API key to widget shared prefs so the background Worker can access it.
+            SecureStorage is encrypted and not accessible from Worker context.
+            </summary>
+        </member>
         <member name="T:KAMICH.Resource">
             <summary>
             Android Resource Designer class.

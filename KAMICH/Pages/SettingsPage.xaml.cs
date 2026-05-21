@@ -34,6 +34,10 @@ public partial class SettingsPage : ContentPage
         OperatorPriceEntry.Text = m.GlobalVehicleSettings.OperatorPrice.ToString();
         HourlyPriceEntry.Text = m.GlobalVehicleSettings.HourlyPrice.ToString();
         FuelConsumptionEntry.Text = m.GlobalVehicleSettings.FuelConsumptionPerHour.ToString();
+        FixedHotelEntry.Text = m.MonthlyFixedCosts.Hotel.ToString();
+        FixedTransportEntry.Text = m.MonthlyFixedCosts.Transport.ToString();
+        FixedServiceEntry.Text = m.MonthlyFixedCosts.Service.ToString();
+        FixedOtherEntry.Text = m.MonthlyFixedCosts.Other.ToString();
 
         _loading = false;
     }
@@ -60,6 +64,17 @@ public partial class SettingsPage : ContentPage
                 NumberStyles.Number,
                 CultureInfo.InvariantCulture,
                 out var g) ? g : 0.0,
+            },
+            MonthlyFixedCosts = new FixedCostsModel
+            {
+                Hotel = double.TryParse((FixedHotelEntry?.Text ?? "").Trim().Replace(',', '.'),
+                NumberStyles.Number, CultureInfo.InvariantCulture, out var h) ? h : 0.0,
+                Transport = double.TryParse((FixedTransportEntry?.Text ?? "").Trim().Replace(',', '.'),
+                NumberStyles.Number, CultureInfo.InvariantCulture, out var t) ? t : 0.0,
+                Service = double.TryParse((FixedServiceEntry?.Text ?? "").Trim().Replace(',', '.'),
+                NumberStyles.Number, CultureInfo.InvariantCulture, out var s) ? s : 0.0,
+                Other = double.TryParse((FixedOtherEntry?.Text ?? "").Trim().Replace(',', '.'),
+                NumberStyles.Number, CultureInfo.InvariantCulture, out var o) ? o : 0.0,
             },
             ApiKey = ApiKeyEntry.Text
         });

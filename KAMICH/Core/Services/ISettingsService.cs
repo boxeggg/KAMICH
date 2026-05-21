@@ -13,6 +13,7 @@ namespace KAMICH.Core.Services.Implementations
         Task SaveAsync(AppSettingsModel model);
         Task<string?> GetApiKeyAsync();
         Task SetApiKeyAsync(string? apiKey);
+        bool IsOnboardingDone();
         void ResetNonSecrets();
         void ResetAll();
     }

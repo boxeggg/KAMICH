@@ -4,12 +4,15 @@ build_property.EnableSingleFileAnalyzer = true
 build_property.EnableTrimAnalyzer = false
 build_property.IncludeAllContentForSelfExtract = 
 build_property.TargetFramework = net9.0-android
+build_property.TargetFrameworkIdentifier = .NETCoreApp
+build_property.TargetFrameworkVersion = v9.0
 build_property.TargetPlatformMinVersion = 
 build_property.UsingMicrosoftNETSdkWeb = 
 build_property.ProjectTypeGuids = 
 build_property.InvariantGlobalization = false
 build_property.PlatformNeutralAssembly = 
 build_property.EnforceExtendedAnalyzerRules = 
+build_property.EntryPointFilePath = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = KAMICH
 build_property.ProjectDir = C:\Users\kamil\source\repos\KAMICH\KAMICH\
@@ -47,6 +50,24 @@ build_metadata.AdditionalFiles.GenKind = Xaml
 build_metadata.AdditionalFiles.ManifestResourceName = KAMICH.Pages.SettingsPage.xaml
 build_metadata.AdditionalFiles.TargetPath = Pages\SettingsPage.xaml
 build_metadata.AdditionalFiles.RelativePath = Pages\SettingsPage.xaml
+
+[C:/Users/kamil/source/repos/KAMICH/KAMICH/Pages/SetupPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KAMICH.Pages.SetupPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\SetupPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\SetupPage.xaml
+
+[C:/Users/kamil/source/repos/KAMICH/KAMICH/Pages/StatsPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KAMICH.Pages.StatsPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\StatsPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\StatsPage.xaml
+
+[C:/Users/kamil/source/repos/KAMICH/KAMICH/Pages/VehicleCustomizationPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = KAMICH.Pages.VehicleCustomizationPage.xaml
+build_metadata.AdditionalFiles.TargetPath = Pages\VehicleCustomizationPage.xaml
+build_metadata.AdditionalFiles.RelativePath = Pages\VehicleCustomizationPage.xaml
 
 [C:/Users/kamil/source/repos/KAMICH/KAMICH/Pages/VehicleDetails.xaml]
 build_metadata.AdditionalFiles.GenKind = Xaml

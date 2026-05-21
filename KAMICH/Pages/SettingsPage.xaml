@@ -151,6 +151,74 @@
                     </Grid>
                 </VerticalStackLayout>
             </Frame>
+
+            <Frame Padding="12" CornerRadius="12" HasShadow="False">
+                <VerticalStackLayout Spacing="0" Padding="0">
+                    <Grid ColumnDefinitions="Auto,*" VerticalOptions="Center" Padding="0,0,0,8">
+                        <Label Text="&#xF0D6;" FontFamily="FASolid" FontSize="18" VerticalOptions="Center" Margin="0,0,10,0" />
+                        <Label Grid.Column="1" Text="Koszty stałe (miesięczne)" VerticalOptions="Center" FontAttributes="Bold" />
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" VerticalOptions="Center" Padding="0" Margin="0,0,0,6">
+                        <Label Grid.Column="0" Text="&#xF236;" FontFamily="FASolid" FontSize="18" VerticalOptions="Center" Margin="0,0,12,0" />
+                        <Label Grid.Column="1" Text="Hotel" VerticalOptions="Center" />
+                        <Entry Grid.Column="2"
+                               x:Name="FixedHotelEntry"
+                               WidthRequest="110"
+                               HorizontalTextAlignment="End"
+                               Placeholder="0.00"
+                               Keyboard="Numeric"
+                               MaxLength="10"
+                               Unfocused="OnParameterChange"/>
+                        <Label Grid.Column="3" Text="zł" VerticalOptions="Center" HorizontalOptions="End" Margin="8,0,0,0" />
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#EEE" HorizontalOptions="Fill" />
+
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" VerticalOptions="Center" Padding="0" Margin="0,0,0,6">
+                        <Label Grid.Column="0" Text="&#xF1B9;" FontFamily="FASolid" FontSize="18" VerticalOptions="Center" Margin="0,0,12,0" />
+                        <Label Grid.Column="1" Text="Transport" VerticalOptions="Center" />
+                        <Entry Grid.Column="2"
+                               x:Name="FixedTransportEntry"
+                               WidthRequest="110"
+                               HorizontalTextAlignment="End"
+                               Placeholder="0.00"
+                               Keyboard="Numeric"
+                               MaxLength="10"
+                               Unfocused="OnParameterChange"/>
+                        <Label Grid.Column="3" Text="zł" VerticalOptions="Center" HorizontalOptions="End" Margin="8,0,0,0" />
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#EEE" HorizontalOptions="Fill" />
+
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" VerticalOptions="Center" Padding="0" Margin="0,6,0,6">
+                        <Label Grid.Column="0" Text="&#xF0AD;" FontFamily="FASolid" FontSize="18" VerticalOptions="Center" Margin="0,0,12,0" />
+                        <Label Grid.Column="1" Text="Serwis" VerticalOptions="Center" />
+                        <Entry Grid.Column="2"
+                               x:Name="FixedServiceEntry"
+                               WidthRequest="110"
+                               HorizontalTextAlignment="End"
+                               Placeholder="0.00"
+                               Keyboard="Numeric"
+                               MaxLength="10"
+                               Unfocused="OnParameterChange"/>
+                        <Label Grid.Column="3" Text="zł" VerticalOptions="Center" HorizontalOptions="End" Margin="8,0,0,0" />
+                    </Grid>
+                    <BoxView HeightRequest="1" BackgroundColor="#EEE" HorizontalOptions="Fill" />
+
+                    <Grid ColumnDefinitions="Auto,*,Auto,Auto" VerticalOptions="Center" Padding="0" Margin="0,6,0,0">
+                        <Label Grid.Column="0" Text="&#xF141;" FontFamily="FASolid" FontSize="18" VerticalOptions="Center" Margin="0,0,12,0" />
+                        <Label Grid.Column="1" Text="Inne" VerticalOptions="Center" />
+                        <Entry Grid.Column="2"
+                               x:Name="FixedOtherEntry"
+                               WidthRequest="110"
+                               HorizontalTextAlignment="End"
+                               Placeholder="0.00"
+                               Keyboard="Numeric"
+                               MaxLength="10"
+                               Unfocused="OnParameterChange"/>
+                        <Label Grid.Column="3" Text="zł" VerticalOptions="Center" HorizontalOptions="End" Margin="8,0,0,0" />
+                    </Grid>
+                </VerticalStackLayout>
+            </Frame>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

@@ -70,6 +70,7 @@ public partial class VehicleCustomizationPage : ContentPage
             HourlyRateEntry.Text = vm.HourlyPrice.ToString() ?? "";
             OperatorRateEntry.Text = vm.OperatorPrice.ToString() ?? "";
             FuelPriceEntry.Text = vm.FuelPrice.ToString() ?? "";
+            FuelConsumptionEntry.Text = vm.FuelConsumptionPerHour.ToString() ?? "";
             TrackingSwitch.IsToggled = vm.IsTracked;
 
         }
@@ -129,6 +130,12 @@ public partial class VehicleCustomizationPage : ContentPage
                 CultureInfo.InvariantCulture,
                 out var f)
                 ? f
+                : 0.0;
+            model.FuelConsumptionPerHour = double.TryParse((FuelConsumptionEntry?.Text ?? "").Trim().Replace(',', '.'),
+                NumberStyles.Number,
+                CultureInfo.InvariantCulture,
+                out var fc)
+                ? fc
                 : 0.0;
             model.IsTracked = TrackingSwitch.IsToggled;
             if(await _memoryService.SetMemoryVehicle(model))

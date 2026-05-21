@@ -12,6 +12,7 @@ public class MemoryVehicleDetails
     public double? FuelPrice { get; set; }
     public double? HourlyPrice { get; set; }
     public double? OperatorPrice { get; set; }
+    public double? FuelConsumptionPerHour { get; set; }
     public string CustomColorHex { get; set; } = "#808080";
     public string CustomIcon { get; set; } = "&#xF1B9;";
     [JsonIgnore]

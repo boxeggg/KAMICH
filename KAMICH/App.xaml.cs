@@ -1,4 +1,5 @@
-﻿using KAMICH.Core.Services.Implementations;
+﻿using System.Globalization;
+using KAMICH.Core.Services.Implementations;
 
 namespace KAMICH
 {
@@ -7,6 +8,10 @@ namespace KAMICH
         private readonly ISettingsService _settingsService;
         public App(ISettingsService settingsService)
         {
+            var polish = new CultureInfo("pl-PL");
+            CultureInfo.DefaultThreadCurrentCulture = polish;
+            CultureInfo.DefaultThreadCurrentUICulture = polish;
+
             InitializeComponent();
             _settingsService = settingsService;
             var dark = Preferences.Get("settings.dark_mode", false);

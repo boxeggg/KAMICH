@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="KAMICH.Pages.SetupPage"
+             Title="Konfiguracja"
+             Shell.NavBarIsVisible="False">
+
+    <ContentPage.Resources>
+        <Color x:Key="AccentGreen">#2E7D32</Color>
+        <Color x:Key="CardLight">#FFFFFF</Color>
+        <Color x:Key="CardDark">#1E1E1E</Color>
+        <Color x:Key="SurfaceLight">#F5F5F5</Color>
+        <Color x:Key="SurfaceDark">#121212</Color>
+    </ContentPage.Resources>
+
+    <Grid BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
+        <ScrollView>
+            <VerticalStackLayout Padding="24" Spacing="20" VerticalOptions="Center">
+
+                <!-- Logo / Header -->
+                <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                    <Label Text="&#xf1b9;" FontFamily="FASolid" FontSize="48"
+                           HorizontalOptions="Center" TextColor="{StaticResource AccentGreen}" />
+                    <Label Text="KAMICH" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center" />
+                    <Label Text="Konfiguracja początkowa" FontSize="14" Opacity="0.6" HorizontalOptions="Center" />
+                </VerticalStackLayout>
+
+                <Frame Padding="16" CornerRadius="12" HasShadow="False" BorderColor="Transparent"
+                       BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="1. Klucz API" FontSize="16" FontAttributes="Bold" />
+                        <Label Text="Wprowadź klucz API z panelu fm-track / Linqo. Znajdziesz go w ustawieniach integracji."
+                               FontSize="12" Opacity="0.6" />
+                        <Entry x:Name="ApiKeyEntry"
+                               Placeholder="Wklej klucz API..."
+                               IsPassword="True"
+                               FontSize="14" />
+                        <Label x:Name="ApiKeyError" Text="" TextColor="#E53935" FontSize="12" IsVisible="False" />
+                    </VerticalStackLayout>
+                </Frame>
+
+     
+                <Frame Padding="16" CornerRadius="12" HasShadow="False" BorderColor="Transparent"
+                       BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}">
+                    <VerticalStackLayout Spacing="10">
+                        <Label Text="2. Konfiguracja zdarzeń w Linqo" FontSize="16" FontAttributes="Bold" />
+                        <Label Text="Upewnij się, że w panelu fm-track masz włączone wykrywanie zdarzeń:"
+                               FontSize="12" Opacity="0.6" />
+
+                        <Frame Padding="10" CornerRadius="8" HasShadow="False"
+                               BackgroundColor="{AppThemeBinding Light=#F5F5F5, Dark=#2C2C2C}"
+                               BorderColor="Transparent">
+                            <VerticalStackLayout Spacing="6">
+                                <HorizontalStackLayout Spacing="8">
+                                    <Label Text="&#xf00c;" FontFamily="FASolid" TextColor="{StaticResource AccentGreen}" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="IgnitionOn" FontSize="14" FontAttributes="Bold" VerticalOptions="Center" />
+                                    <Label Text="— włączenie silnika" FontSize="12" Opacity="0.6" VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                                <HorizontalStackLayout Spacing="8">
+                                    <Label Text="&#xf00c;" FontFamily="FASolid" TextColor="{StaticResource AccentGreen}" FontSize="14" VerticalOptions="Center" />
+                                    <Label Text="IgnitionOff" FontSize="14" FontAttributes="Bold" VerticalOptions="Center" />
+                                    <Label Text="— wyłączenie silnika" FontSize="12" Opacity="0.6" VerticalOptions="Center" />
+                                </HorizontalStackLayout>
+                            </VerticalStackLayout>
+                        </Frame>
+
+                        <Label Text="Bez tych zdarzeń aplikacja nie będzie mogła obliczyć czasu pracy maszyn."
+                               FontSize="11" Opacity="0.5" />
+
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                            <CheckBox x:Name="EventsConfirmCheckbox" Color="{StaticResource AccentGreen}" />
+                            <Label Grid.Column="1" Text="Potwierdzam, że zdarzenia IgnitionOn i IgnitionOff są skonfigurowane"
+                                   FontSize="12" VerticalTextAlignment="Center" />
+                        </Grid>
+                    </VerticalStackLayout>
+                </Frame>
+
+                <!-- Submit -->
+                <Button x:Name="StartButton" Text="Rozpocznij"
+                        BackgroundColor="{StaticResource AccentGreen}"
+                        TextColor="White"
+                        FontAttributes="Bold"
+                        FontSize="16"
+                        CornerRadius="12"
+                        HeightRequest="50"
+                        Clicked="OnStartClicked" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+</ContentPage>

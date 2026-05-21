@@ -1,22 +1,44 @@
 using KAMICH.Core.Services;
+using KAMICH.Core.Services.Implementations;
+using KAMICH.Core.Models;
+using Microcharts;
+using SkiaSharp;
+using System.Diagnostics;
 
 namespace KAMICH.Pages;
 
 public partial class LandingPage : ContentPage
 {
     private readonly IHomeService _homeService;
+    private readonly ISettingsService _settings;
     private string _currentPeriod = "DAILY";
+    private CancellationTokenSource _cts;
+    private bool _doneHealthCheck = false;
+    private bool _useBarChart = true;
 
-    public LandingPage(IHomeService homeService)
+    private DateTime _selectedDate = DateTime.Now.Date;
+    private DateTime _selectedMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
+    private DateTime _selectedYear = new DateTime(DateTime.Now.Year, 1, 1);
+
+    public LandingPage(IHomeService homeService, ISettingsService settings)
     {
         InitializeComponent();
         _homeService = homeService;
+        _settings = settings;
     }
 
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        if (!_settings.IsOnboardingDone())
+        {
+            await Shell.Current.GoToAsync("setup");
+            return;
+        }
+        if (!_doneHealthCheck) DoHealthCheckAsync();
         UpdateTabStyles();
+        UpdatePickerVisibility();
         await LoadData();
     }
 
@@ -24,7 +46,9 @@ public partial class LandingPage : ContentPage
     {
         if (_currentPeriod == "DAILY") return;
         _currentPeriod = "DAILY";
+        _selectedDate = DateTime.Now.Date;
         UpdateTabStyles();
+        UpdatePickerVisibility();
         await LoadData();
     }
 
@@ -32,7 +56,9 @@ public partial class LandingPage : ContentPage
     {
         if (_currentPeriod == "MONTHLY") return;
         _currentPeriod = "MONTHLY";
+        _selectedMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
         UpdateTabStyles();
+        UpdatePickerVisibility();
         await LoadData();
     }
 
@@ -40,23 +66,149 @@ public partial class LandingPage : ContentPage
     {
         if (_currentPeriod == "YEARLY") return;
         _currentPeriod = "YEARLY";
+        _selectedYear = new DateTime(DateTime.Now.Year, 1, 1);
         UpdateTabStyles();
+        UpdatePickerVisibility();
         await LoadData();
+    }
+
+    // --- Date picker (daily) ---
+    private void OnDatePickerClicked(object sender, EventArgs e)
+    {
+        HiddenDatePicker.MaximumDate = DateTime.Now.Date;
+        HiddenDatePicker.Date = _selectedDate;
+        HiddenDatePicker.IsVisible = true;
+        HiddenDatePicker.Focus();
+    }
+
+    private async void OnDateSelected(object sender, DateChangedEventArgs e)
+    {
+        HiddenDatePicker.IsVisible = false;
+        _selectedDate = e.NewDate.Date;
+        UpdatePickerLabels();
+        await LoadData();
+    }
+    // --- Day Nav ---
+    private async void OnDayPrev(object sender, EventArgs e)
+    {
+        _selectedDate = _selectedDate.AddDays(-1);
+        UpdatePickerLabels();
+        await LoadData();
+    }
+
+    private async void OnDayNext(object sender, EventArgs e)
+    {
+        if (_selectedDate.AddDays(1) > DateTime.Now) return;
+        _selectedDate = _selectedDate.AddDays(1);
+        UpdatePickerLabels();
+        await LoadData();
+    }
+
+    // --- Month nav ---
+    private async void OnMonthPrev(object sender, EventArgs e)
+    {
+        _selectedMonth = _selectedMonth.AddMonths(-1);
+        UpdatePickerLabels();
+        await LoadData();
+    }
+
+    private async void OnMonthNext(object sender, EventArgs e)
+    {
+        if (_selectedMonth.AddMonths(1) > DateTime.Now) return;
+        _selectedMonth = _selectedMonth.AddMonths(1);
+        UpdatePickerLabels();
+        await LoadData();
+    }
+
+    // --- Year nav ---
+    private async void OnYearPrev(object sender, EventArgs e)
+    {
+        _selectedYear = _selectedYear.AddYears(-1);
+        UpdatePickerLabels();
+        await LoadData();
+    }
+
+    private async void OnYearNext(object sender, EventArgs e)
+    {
+        if (_selectedYear.AddYears(1).Year > DateTime.Now.Year) return;
+        _selectedYear = _selectedYear.AddYears(1);
+        UpdatePickerLabels();
+        await LoadData();
+    }
+
+    private void UpdatePickerVisibility()
+    {
+        DailyPickerFrame.IsVisible = _currentPeriod == "DAILY";
+        MonthPickerFrame.IsVisible = _currentPeriod == "MONTHLY";
+        YearPickerFrame.IsVisible = _currentPeriod == "YEARLY";
+        UpdatePickerLabels();
+    }
+
+    private void UpdatePickerLabels()
+    {
+        SelectedDateLabel.Text = _selectedDate.Date == DateTime.Now.Date
+            ? "Dziś"
+            : _selectedDate.ToString("dd MMMM yyyy");
+
+        SelectedMonthLabel.Text = _selectedMonth.ToString("MMMM yyyy");
+        SelectedYearLabel.Text = _selectedYear.ToString("yyyy");
+    }
+
+    private async Task DoHealthCheckAsync()
+    {
+        this._doneHealthCheck = true;
+        var isApiHealthy = await _homeService.DoHealthCheck();
+        if (!isApiHealthy)
+        {
+            apiStatus.IsVisible = true;
+            apiStatus.Text = "Obecnie występują problemy z dostępnością API. Trwają prace nad przywróceniem pełnej funkcjonalności. Przepraszamy za utrudnienia.";
+        }
     }
 
     private async Task LoadData()
     {
+        _cts?.Cancel();
+        await Task.Delay(500);
+        _cts = new CancellationTokenSource();
         try
         {
             LoadingIndicator.IsRunning = true;
             LoadingIndicator.IsVisible = true;
 
-            var vm = await _homeService.GetHomePageViewModel(_currentPeriod);
+            var selectedDate = _currentPeriod switch
+            {
+                "DAILY" => _selectedDate,
+                "MONTHLY" => _selectedMonth,
+                "YEARLY" => _selectedYear,
+                _ => DateTime.Now
+            };
+
+            var vm = await _homeService.GetHomePageViewModel(_cts.Token, _currentPeriod, selectedDate);
             BindingContext = vm;
+
+            // Delay so layout settles before setting chart
+            Dispatcher.Dispatch(async () =>
+            {
+                await Task.Delay(100);
+                UpdateChart(vm);
+            });
+        }
+        catch (OperationCanceledException)
+        {
+        }
+        catch (System.Net.WebException wex)
+        {
+            Debug.WriteLine($"WebException: {wex}");
+            Debug.WriteLine($"{_cts.IsCancellationRequested} :  {_cts.Token.ToString()}");
+        }
+        catch (HttpRequestException ex)
+        {
+            await DisplayAlert("Błąd", ex.Message, "OK");
         }
         catch (Exception ex)
         {
-            await DisplayAlert("Błąd", ex.Message, "OK");
+            Debug.WriteLine(ex.ToString());
+            await DisplayAlert("Nieoczekiwany błąd", ex.Message, "OK");
         }
         finally
         {
@@ -65,21 +217,99 @@ public partial class LandingPage : ContentPage
         }
     }
 
+    private void OnChartBarClicked(object sender, EventArgs e)
+    {
+        _useBarChart = true;
+        UpdateChartButtonStyles();
+        if (BindingContext is HomePageViewModel vm) UpdateChart(vm);
+    }
+
+    private void OnChartLineClicked(object sender, EventArgs e)
+    {
+        _useBarChart = false;
+        UpdateChartButtonStyles();
+        if (BindingContext is HomePageViewModel vm) UpdateChart(vm);
+    }
+
+    private void UpdateChart(HomePageViewModel vm)
+    {
+        var entries = vm.ChartEntries.TakeLast(5).ToList();
+        if (entries.Count < 2)
+        {
+            ChartFrame.IsVisible = false;
+            return;
+        }
+        ChartFrame.IsVisible = true;
+
+        bool isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
+        var labelColor = isDark ? SKColor.Parse("#CCCCCC") : SKColor.Parse("#333333");
+        var bgColor = SKColors.Transparent;
+
+        Chart chart;
+        if (_useBarChart)
+        {
+            chart = new BarChart
+            {
+                Entries = entries,
+                LabelTextSize = 28,
+                LabelColor = labelColor,
+                ValueLabelOption = ValueLabelOption.None,
+                BarAreaAlpha = 0,
+                BackgroundColor = bgColor,
+                Margin = 8,
+                MinValue = 0
+            };
+        }
+        else
+        {
+            chart = new LineChart
+            {
+                Entries = entries,
+                LabelTextSize = 28,
+                LabelColor = labelColor,
+                ValueLabelOption = ValueLabelOption.None,
+                LineMode = LineMode.Straight,
+                PointMode = PointMode.Circle,
+                PointSize = 8,
+                LineSize = 3,
+                BackgroundColor = bgColor,
+                Margin = 8,
+                MinValue = 0
+            };
+        }
+
+        ChartContainer.Children.Clear();
+        ChartContainer.Children.Add(new Microcharts.Maui.ChartView
+        {
+            Chart = chart,
+            HeightRequest = 180
+        });
+    }
+
+    private void UpdateChartButtonStyles()
+    {
+        var active = Color.FromArgb("#2E7D32");
+        bool isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
+
+        ChartBarBtn.BackgroundColor = _useBarChart ? active : Colors.Transparent;
+        ChartBarBtn.TextColor = _useBarChart ? Colors.White : (isDark ? Color.FromArgb("#CCCCCC") : Color.FromArgb("#333333"));
+        ChartLineBtn.BackgroundColor = !_useBarChart ? active : Colors.Transparent;
+        ChartLineBtn.TextColor = !_useBarChart ? Colors.White : (isDark ? Color.FromArgb("#CCCCCC") : Color.FromArgb("#333333"));
+    }
+
     private void UpdateTabStyles()
     {
         var activeBackground = Color.FromArgb("#2E7D32");
-        var activeLightBackground = Color.FromArgb("#E8F5E9");
 
         bool isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
 
         var inactiveBackground = Colors.Transparent;
-        var activeText = isDark ? Colors.White : Colors.White;
+        var activeText = Colors.White;
         var inactiveText = isDark ? Color.FromArgb("#9E9E9E") : Color.FromArgb("#757575");
-        var activeBg = isDark ? activeBackground : activeBackground;
 
-        TabDaily.BackgroundColor = _currentPeriod == "DAILY" ? activeBg : inactiveBackground;
-        TabMonthly.BackgroundColor = _currentPeriod == "MONTHLY" ? activeBg : inactiveBackground;
-        TabYearly.BackgroundColor = _currentPeriod == "YEARLY" ? activeBg : inactiveBackground;
+        TabDaily.BackgroundColor = _currentPeriod == "DAILY" ? activeBackground : inactiveBackground;
+        TabMonthly.BackgroundColor = _currentPeriod == "MONTHLY" ? activeBackground : inactiveBackground;
+        TabYearly.BackgroundColor = _currentPeriod == "YEARLY" ? activeBackground : inactiveBackground;
 
         TabDailyLabel.TextColor = _currentPeriod == "DAILY" ? activeText : inactiveText;
         TabMonthlyLabel.TextColor = _currentPeriod == "MONTHLY" ? activeText : inactiveText;

@@ -10,6 +10,7 @@ namespace KAMICH
             Routing.RegisterRoute("details", typeof(VehicleDetails));
             Routing.RegisterRoute("customization", typeof(VehicleCustomizationPage));
             Routing.RegisterRoute("stats", typeof(StatsPage));
+            Routing.RegisterRoute("setup", typeof(SetupPage));
         }
     }
 }

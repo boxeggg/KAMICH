@@ -171,6 +171,14 @@
                            Keyboard="Numeric"
                            HorizontalOptions="Fill"/>
                 </VerticalStackLayout>
+
+                <VerticalStackLayout Spacing="2">
+                    <Label Text="Pobór paliwa [L/h]" FontSize="14"/>
+                    <Entry x:Name="FuelConsumptionEntry"
+                           Placeholder="np. 12"
+                           Keyboard="Numeric"
+                           HorizontalOptions="Fill"/>
+                </VerticalStackLayout>
             </VerticalStackLayout>
 
         </VerticalStackLayout>
