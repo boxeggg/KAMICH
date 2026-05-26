@@ -3,7 +3,7 @@
 ################################################################################
 
 /.vs/
-/KAMICH/bin/Debug/net9.0-android
-/KAMICH/obj/Debug/net9.0-android
+/KAMICH/bin/Debug/
+/KAMICH/obj/
 /KAMICH/KAMICH.csproj.user
 /KAMICH/KAMICH.csproj.user
