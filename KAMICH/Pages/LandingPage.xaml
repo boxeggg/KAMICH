@@ -21,7 +21,18 @@
 
     <Grid BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
         <ScrollView>
-            <VerticalStackLayout Padding="16,12" Spacing="16">
+            <Grid Padding="{OnIdiom Phone='16,12', Desktop='28,24'}"
+                  ColumnDefinitions="{OnIdiom Phone='*', Desktop='3*,2*'}"
+                  RowDefinitions="{OnIdiom Phone='Auto,Auto', Desktop='Auto'}"
+                  ColumnSpacing="{OnIdiom Phone=0, Desktop=24}"
+                  RowSpacing="{OnIdiom Phone=16, Desktop=0}"
+                  MaximumWidthRequest="{OnIdiom Phone=10000, Desktop=1500}"
+                  HorizontalOptions="Fill">
+
+                <!-- LEWA KOLUMNA / GŁÓWNA -->
+                <VerticalStackLayout Grid.Row="0" Grid.Column="0"
+                                     Spacing="{OnIdiom Phone=16, Desktop=20}"
+                                     VerticalOptions="Start">
                 <Label x:Name="apiStatus" Text="" IsVisible="False"
                      Grid.Row="0" />
 
@@ -121,7 +132,7 @@
                         <Label x:Name="PeriodTitle" Text="{Binding PeriodLabel}"
                                FontSize="13" TextColor="#C8E6C9" />
                         <Label Text="{Binding TotalIncome, StringFormat='{}{0:N2} zł'}"
-                               FontSize="34" FontAttributes="Bold" TextColor="White" />
+                               FontSize="{OnIdiom Phone=34, Desktop=44}" FontAttributes="Bold" TextColor="White" />
                         <Label Text="Szacowany przychód netto" FontSize="11" TextColor="#A5D6A7" Margin="0,4,0,0" />
                     </VerticalStackLayout>
                 </Frame>
@@ -154,6 +165,14 @@
                     </VerticalStackLayout>
                 </Frame>
 
+                </VerticalStackLayout>
+
+                <!-- PRAWA KOLUMNA / DRUGORZĘDNA -->
+                <VerticalStackLayout Grid.Row="{OnIdiom Phone=1, Desktop=0}"
+                                     Grid.Column="{OnIdiom Phone=0, Desktop=1}"
+                                     Spacing="{OnIdiom Phone=16, Desktop=20}"
+                                     VerticalOptions="Start">
+
                 <!-- Section Header -->
                 <Label Text="Pojazdy" FontSize="15" FontAttributes="Bold" Margin="0,4,0,0"
                        TextColor="{AppThemeBinding Light={StaticResource SubtextLight}, Dark={StaticResource SubtextDark}}" />
@@ -179,6 +198,18 @@
                             <Frame Padding="14" CornerRadius="12" HasShadow="False" Margin="0,0,0,8"
                                    BorderColor="Transparent"
                                    BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroupList>
+                                        <VisualStateGroup x:Name="CommonStates">
+                                            <VisualState x:Name="Normal" />
+                                            <VisualState x:Name="PointerOver">
+                                                <VisualState.Setters>
+                                                    <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray900}}" />
+                                                </VisualState.Setters>
+                                            </VisualState>
+                                        </VisualStateGroup>
+                                    </VisualStateGroupList>
+                                </VisualStateManager.VisualStateGroups>
                                 <Grid ColumnDefinitions="44,*,Auto" ColumnSpacing="12" VerticalOptions="Center">
 
                                     <!-- Vehicle Icon -->
@@ -249,7 +280,8 @@
                     </VerticalStackLayout>
                 </Frame>
 
-            </VerticalStackLayout>
+                </VerticalStackLayout>
+            </Grid>
         </ScrollView>
     </Grid>
 </ContentPage>

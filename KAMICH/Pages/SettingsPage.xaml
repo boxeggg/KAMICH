@@ -5,7 +5,10 @@
              Title="Ustawienia">
 
     <ScrollView>
-        <VerticalStackLayout Spacing="12" Padding="16,12">
+        <VerticalStackLayout Spacing="{OnIdiom Phone=12, Desktop=16}"
+                             Padding="{OnIdiom Phone='16,12', Desktop='24,20'}"
+                             MaximumWidthRequest="{OnIdiom Phone=10000, Desktop=760}"
+                             HorizontalOptions="{OnIdiom Phone=Fill, Desktop=Center}">
             <Frame Padding="12" CornerRadius="12" HasShadow="False" >
                 <VerticalStackLayout Spacing="8">
                     <Grid ColumnDefinitions="Auto,*,Auto" VerticalOptions="Center">
