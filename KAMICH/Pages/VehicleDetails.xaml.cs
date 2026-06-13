@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using KAMICH.Core.Services;
-using KAMICH.Integrations.Linqo.Models;
+using KAMICH.Core.ViewModels;
 using Microsoft.Maui.Controls;
 
 namespace KAMICH.Pages;
@@ -60,10 +60,10 @@ public partial class VehicleDetails : ContentPage
             var from = new DateTimeOffset(localToday, DateTimeOffset.Now.Offset);
             var to = DateTimeOffset.Now;
 
-            var vm = await _vehicleService.GetVehiclesDetails(id, from, to);
-            if (vm != null)
+            var dto = await _vehicleService.GetVehiclesDetails(id, from, to);
+            if (dto != null)
             {
-                BindingContext = vm;
+                BindingContext = VehicleDetailsViewModel.FromDto(dto);
             }
         }
         catch (Exception ex)

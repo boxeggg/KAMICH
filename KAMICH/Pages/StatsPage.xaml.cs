@@ -1,5 +1,5 @@
 using KAMICH.Core.Services;
-using KAMICH.Integrations.Linqo.Models;
+using KAMICH.Core.ViewModels;
 
 namespace KAMICH.Pages;
 
@@ -71,7 +71,7 @@ public partial class StatsPage : ContentPage
             }
             else
             {
-                StatsCollection.ItemsSource = stats;
+                StatsCollection.ItemsSource = stats.Select(StatsViewModel.FromDto).ToList();
             }
         }
         catch (Exception ex)
