@@ -24,23 +24,15 @@
         <ScrollView>
             <Grid Padding="{OnIdiom Phone='16,12', Desktop='28,24'}"
                   ColumnDefinitions="{OnIdiom Phone='*', Desktop='3*,2*'}"
-                  RowDefinitions="{OnIdiom Phone='Auto,Auto', Desktop='Auto'}"
+                  RowDefinitions="{OnIdiom Phone='Auto,Auto,Auto,Auto', Desktop='Auto,Auto,Auto'}"
                   ColumnSpacing="{OnIdiom Phone=0, Desktop=24}"
                   RowSpacing="{OnIdiom Phone=16, Desktop=0}"
                   MaximumWidthRequest="{OnIdiom Phone=10000, Desktop=1500}"
                   HorizontalOptions="Fill">
-
-                <!-- LEWA KOLUMNA / GŁÓWNA -->
-                <VerticalStackLayout Grid.Row="0" Grid.Column="0"
-                                     Spacing="{OnIdiom Phone=16, Desktop=20}"
-                                     VerticalOptions="Start">
-                <Label x:Name="apiStatus" Text="" IsVisible="False"
-                     Grid.Row="0" />
-
-                <!-- Segmented Tab Control -->
+                
                 <Frame Padding="4" CornerRadius="12" HasShadow="False"
                        BackgroundColor="{AppThemeBinding Light={StaticResource TabInactiveLight}, Dark={StaticResource TabInactiveDark}}"
-                       BorderColor="Transparent">
+                       BorderColor="Transparent" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="{OnIdiom Phone=1, Desktop=2}">
                     <Grid ColumnDefinitions="*,*,*" ColumnSpacing="4">
                         <Frame x:Name="TabDaily" Padding="8,10" CornerRadius="10" HasShadow="False"
                                BorderColor="Transparent">
@@ -70,6 +62,23 @@
                         </Frame>
                     </Grid>
                 </Frame>
+
+                <!-- Desktop: shared background panel behind row 1 (both columns read as one surface) -->
+                <Frame Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+                       IsVisible="{OnIdiom Phone=False, Desktop=True}"
+                       Padding="0" CornerRadius="16" HasShadow="False"
+                       BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
+                       BorderColor="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray950}}" />
+
+                <!-- LEFT / MAIN -->
+                <VerticalStackLayout Grid.Row="1" Grid.Column="0"
+                                     Margin="{OnIdiom Phone=0, Desktop='16,16,12,16'}"
+                                     Spacing="{OnIdiom Phone=16, Desktop=20}"
+                                     VerticalOptions="Start">
+                <Label x:Name="apiStatus" Text="" IsVisible="False"
+                     Grid.Row="1" />
+
+                <!-- Segmented Tab Control -->
 
                 <!-- Period Selector -->
                 <Frame x:Name="DailyPickerFrame" Padding="8,6" CornerRadius="10" HasShadow="False" BorderColor="Transparent"
@@ -142,10 +151,15 @@
                 <ActivityIndicator x:Name="LoadingIndicator" IsRunning="False" IsVisible="False"
                                    HorizontalOptions="Center" Color="{StaticResource AccentGreen}" />
 
-                <!-- Chart -->
+                </VerticalStackLayout>
+
+                <!-- Chart  -->
                 <Frame x:Name="ChartFrame" Padding="12" CornerRadius="12" HasShadow="False" BorderColor="Transparent"
-                       BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
-                       IsVisible="False">
+                    Grid.Row="{OnIdiom Phone=3, Desktop=2}"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="{OnIdiom Phone=1, Desktop=2}"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource CardLight}, Dark={StaticResource CardDark}}"
+                       IsVisible="False" >
                     <VerticalStackLayout Spacing="8">
                         <Grid ColumnDefinitions="*,Auto">
                             <Label Text="Historia przychodów" FontSize="13" FontAttributes="Bold"
@@ -162,15 +176,21 @@
                                         Clicked="OnChartLineClicked" />
                             </HorizontalStackLayout>
                         </Grid>
-                        <VerticalStackLayout x:Name="ChartContainer" HeightRequest="180" />
+                            <VerticalStackLayout x:Name="ChartContainer" HeightRequest="{OnIdiom Phone=180, Desktop=400}"  />
                     </VerticalStackLayout>
                 </Frame>
 
-                </VerticalStackLayout>
+                <!-- Desktop: subtle vertical divider between the columns (centered in the gap) -->
+                <BoxView Grid.Row="1" Grid.Column="1"
+                         IsVisible="{OnIdiom Phone=False, Desktop=True}"
+                         WidthRequest="1" HorizontalOptions="Start" VerticalOptions="Fill"
+                         Margin="-12,18,0,18"
+                         Color="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray950}}" />
 
-                <!-- PRAWA KOLUMNA / DRUGORZĘDNA -->
-                <VerticalStackLayout Grid.Row="{OnIdiom Phone=1, Desktop=0}"
+                <!-- RIGHT COLUMN -->
+                <VerticalStackLayout Grid.Row="{OnIdiom Phone=2, Desktop=1}"
                                      Grid.Column="{OnIdiom Phone=0, Desktop=1}"
+                                     Margin="{OnIdiom Phone=0, Desktop='12,16,16,16'}"
                                      Spacing="{OnIdiom Phone=16, Desktop=20}"
                                      VerticalOptions="Start">
 

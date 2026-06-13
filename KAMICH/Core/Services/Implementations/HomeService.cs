@@ -1,6 +1,5 @@
 using KAMICH.Core.Models;
-using Microcharts;
-using SkiaSharp;
+using KAMICH.Core.ViewModels;
 
 namespace KAMICH.Core.Services.Implementations;
 
@@ -93,13 +92,11 @@ public class HomeService : IHomeService
         var multiplier = GetCostMultiplier(period);
 
         // Build chart
-        var history = _historyService.GetHistory(period);
-        var chartEntries = history.Select(h => new ChartEntry((float)h.Income)
-        {
-            Label = GetChartLabel(period, h.Date),
-            ValueLabel = h.Income.ToString("N0"),
-            Color = SKColor.Parse("#2E7D32")
-        }).ToList();
+        var history = _historyService.GetHistory(period,31);
+        var chartPoints = history.Select(h => new ChartPoint(
+            GetChartLabel(period, h.Date),
+            h.Income,
+            "#2E7D32")).ToList();
 
         var periodLabel = GetLabel(period, selectedDate);
 
@@ -120,7 +117,7 @@ public class HomeService : IHomeService
             FixedCostTransport = monthly.Transport * multiplier,
             FixedCostService = monthly.Service * multiplier,
             FixedCostOther = monthly.Other * multiplier,
-            ChartEntries = chartEntries
+            ChartPoints = chartPoints
         };
     }
 

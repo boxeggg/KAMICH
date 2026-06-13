@@ -1,6 +1,6 @@
-using Microcharts;
+using KAMICH.Core.Models;
 
-namespace KAMICH.Core.Models;
+namespace KAMICH.Core.ViewModels;
 
 public class HomePageViewModel
 {
@@ -14,8 +14,8 @@ public class HomePageViewModel
     public double FixedCostTotal => FixedCostHotel + FixedCostTransport + FixedCostService + FixedCostOther;
     public bool HasFixedCosts => FixedCostTotal > 0;
     public double NetIncome => TotalIncome - FixedCostTotal;
-    public List<ChartEntry> ChartEntries { get; set; } = new();
-    public bool HasChartData => ChartEntries.Count > 0;
+    public IReadOnlyList<ChartPoint> ChartPoints { get; set; } = new List<ChartPoint>(); // Char points should be independent from extrenal libs
+    public bool HasChartData => ChartPoints.Count > 0;
 }
 
 public class SimpleVehicleVm

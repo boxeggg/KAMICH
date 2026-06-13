@@ -4,6 +4,9 @@ using KAMICH.Core.Services.Implementations;
 using Microcharts.Maui;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Hosting;
+#if WINDOWS || MACCATALYST
+using ScottPlot.Maui;
+#endif
 
 namespace KAMICH
 {
@@ -35,6 +38,10 @@ namespace KAMICH
                     });
 #endif
                 });
+
+#if WINDOWS || MACCATALYST
+            builder.UseScottPlot();
+#endif
             builder.Services.AddSingleton<ISettingsService, SettingsService>();
             builder.Services.AddSingleton<IMemoryService, MemoryService>();
             builder.Services.AddSingleton<ICacheService, CacheService>();
