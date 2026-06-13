@@ -3,7 +3,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:micro="clr-namespace:Microcharts.Maui;assembly=Microcharts.Maui"
              x:Class="KAMICH.Pages.LandingPage"
-             Title="Strona główna">
+             Title="Strona główna"
+             Shell.NavBarIsVisible="{OnIdiom Phone=True, Desktop=False}">
 
     <ContentPage.Resources>
         <Color x:Key="AccentGreen">#2E7D32</Color>
