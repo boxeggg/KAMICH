@@ -1,4 +1,4 @@
-﻿using KAMICH.Core.Models;
+﻿using KAMICH.Core.ViewModels;
 
 namespace KAMICH.Core.Services;
 
