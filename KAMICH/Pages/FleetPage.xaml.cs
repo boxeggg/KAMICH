@@ -1,5 +1,5 @@
 using KAMICH.Core.Services;
-using KAMICH.Integrations.Linqo.Models;
+using KAMICH.Core.ViewModels;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Windows.Input;
@@ -11,7 +11,7 @@ public partial class FleetPage : ContentPage
     private readonly IVehicleService _vehicleService;
     private readonly IMemoryService _memoryService;
 
-    public ObservableCollection<VehicleModelDto> Vehicles { get; } = new();
+    public ObservableCollection<VehicleViewModel> Vehicles { get; } = new();
     public ICommand NavigateToVehicleCommand { get; }
     private bool _isNavigating;
 
@@ -77,7 +77,8 @@ public partial class FleetPage : ContentPage
 
             foreach (var v in vehicles.OrderBy(v => v.Name ?? string.Empty))
             {
-                Vehicles.Add(v);
+                var memory = await _memoryService.GetMemoryVehiclesDetails(v.Id);
+                Vehicles.Add(VehicleViewModel.FromDto(v, memory));
             }
         }
         catch (Exception ex)

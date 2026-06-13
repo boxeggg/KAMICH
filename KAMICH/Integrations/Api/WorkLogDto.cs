@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace KAMICH.Integrations.Linqo.Models;
+namespace KAMICH.Integrations.Api;
 
 public class WorkLogDto
 {

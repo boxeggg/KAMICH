@@ -4,6 +4,9 @@ using KAMICH.Core.Services.Implementations;
 using Microcharts.Maui;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Hosting;
+#if WINDOWS || MACCATALYST
+using ScottPlot.Maui;
+#endif
 
 namespace KAMICH
 {
@@ -35,6 +38,10 @@ namespace KAMICH
                     });
 #endif
                 });
+
+#if WINDOWS || MACCATALYST
+            builder.UseScottPlot();
+#endif
             builder.Services.AddSingleton<ISettingsService, SettingsService>();
             builder.Services.AddSingleton<IMemoryService, MemoryService>();
             builder.Services.AddSingleton<ICacheService, CacheService>();
@@ -49,6 +56,7 @@ namespace KAMICH
             builder.Services.AddSingleton<HttpClient>(sp => new HttpClient
             {
 #if DEBUG
+                // BaseAddress = new Uri("http://10.0.2.2:8080/")
                 BaseAddress = new Uri("https://kamich-api-production.up.railway.app/"),
 #else
                 BaseAddress = new Uri("https://kamich-api-production.up.railway.app/"),
