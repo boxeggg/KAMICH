@@ -8,7 +8,7 @@ public class VehicleViewModel
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public Color Color { get; set; } = Color.FromRgb(128, 128, 128);
-    public string Icon { get; set; } = "";
+    public string Icon { get; set; } = "\uf1b9";
 
     public static VehicleViewModel FromDto(VehicleModelDto dto, MemoryVehicleDetails? memory)
     {

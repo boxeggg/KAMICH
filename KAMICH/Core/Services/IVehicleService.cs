@@ -1,3 +1,4 @@
+using KAMICH.Integrations.Api;
 using KAMICH.Integrations.Linqo.Models;
 
 namespace KAMICH.Core.Services;
