@@ -66,6 +66,11 @@
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.0" />
 	</ItemGroup>
 
+	<!-- Desktop chart renderer (ScottPlot) for desktop TFMs only; mobile stays on Microcharts. -->
+	<ItemGroup Condition="$(TargetFramework.Contains('-windows')) Or $(TargetFramework.Contains('-maccatalyst'))">
+		<PackageReference Include="ScottPlot.Maui" Version="5.0.55" />
+	</ItemGroup>
+
 	<ItemGroup>
 	  <Compile Update="Pages\LandingPage.xaml.cs">
 	    <DependentUpon>LandingPage.xaml</DependentUpon>

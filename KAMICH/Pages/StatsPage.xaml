@@ -7,7 +7,10 @@
     BackgroundColor="{DynamicResource PageBackgroundColor}">
 
     <ScrollView>
-        <VerticalStackLayout Padding="14" Spacing="12">
+        <VerticalStackLayout Padding="{OnIdiom Phone=14, Desktop='24,20'}"
+                             Spacing="{OnIdiom Phone=12, Desktop=16}"
+                             MaximumWidthRequest="{OnIdiom Phone=10000, Desktop=760}"
+                             HorizontalOptions="{OnIdiom Phone=Fill, Desktop=Center}">
 
             <!-- Tabs -->
             <Grid ColumnDefinitions="*,*,*" ColumnSpacing="6">

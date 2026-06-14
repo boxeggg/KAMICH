@@ -4,6 +4,7 @@ using KAMICH.Core.Models;
 using Microcharts;
 using SkiaSharp;
 using System.Diagnostics;
+using KAMICH.Core.ViewModels;
 
 namespace KAMICH.Pages;
 
@@ -15,6 +16,11 @@ public partial class LandingPage : ContentPage
     private CancellationTokenSource _cts;
     private bool _doneHealthCheck = false;
     private bool _useBarChart = true;
+#if WINDOWS || MACCATALYST
+       private int _charPointToUse = 12;
+#else
+    private int _charPointToUse = 5;
+#endif
 
     private DateTime _selectedDate = DateTime.Now.Date;
     private DateTime _selectedMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
@@ -233,13 +239,29 @@ public partial class LandingPage : ContentPage
 
     private void UpdateChart(HomePageViewModel vm)
     {
-        var entries = vm.ChartEntries.TakeLast(5).ToList();
-        if (entries.Count < 2)
+        var points = vm.ChartPoints.TakeLast(_charPointToUse).ToList();
+        if (points.Count < 2)
         {
             ChartFrame.IsVisible = false;
             return;
         }
         ChartFrame.IsVisible = true;
+
+#if WINDOWS || MACCATALYST
+        RenderScottPlot(points);
+#else
+        RenderMicrocharts(points);
+#endif
+    }
+
+    private void RenderMicrocharts(List<ChartPoint> points)
+    {
+        var entries = points.Select(p => new ChartEntry((float)p.Value)
+        {
+            Label = p.Label,
+            ValueLabel = p.Value.ToString("N0"),
+            Color = SKColor.Parse(p.ColorHex ?? "#2E7D32")
+        }).ToList();
 
         bool isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
         var labelColor = isDark ? SKColor.Parse("#CCCCCC") : SKColor.Parse("#333333");
@@ -285,6 +307,51 @@ public partial class LandingPage : ContentPage
             HeightRequest = 180
         });
     }
+
+#if WINDOWS || MACCATALYST
+    private void RenderScottPlot(List<ChartPoint> points)
+    {
+        bool isDark = Application.Current?.RequestedTheme == AppTheme.Dark;
+        var green = ScottPlot.Color.FromHex("#2E7D32");
+        var axisColor = isDark ? ScottPlot.Color.FromHex("#CCCCCC") : ScottPlot.Color.FromHex("#333333");
+
+        var plotView = new ScottPlot.Maui.MauiPlot { HeightRequest = 400, VerticalOptions = LayoutOptions.Fill };
+        var plot = plotView.Plot;
+        plot.Clear();
+
+        if (_useBarChart)
+        {
+            var bars = points.Select((p, i) => new ScottPlot.Bar
+            {
+                Position = i,
+                Value = p.Value,
+                FillColor = ScottPlot.Color.FromHex(p.ColorHex ?? "#2E7D32")
+            }).ToList();
+            plot.Add.Bars(bars);
+        }
+        else
+        {
+            double[] xs = Enumerable.Range(0, points.Count).Select(i => (double)i).ToArray();
+            double[] ys = points.Select(p => p.Value).ToArray();
+            var scatter = plot.Add.Scatter(xs, ys);
+            scatter.Color = green;
+            scatter.LineWidth = 3;
+            scatter.MarkerSize = 8;
+        }
+
+        ScottPlot.Tick[] ticks = points.Select((p, i) => new ScottPlot.Tick(i, p.Label)).ToArray();
+        plot.Axes.Bottom.TickGenerator = new ScottPlot.TickGenerators.NumericManual(ticks);
+
+        plot.FigureBackground.Color = ScottPlot.Colors.Transparent;
+        plot.DataBackground.Color = ScottPlot.Colors.Transparent;
+        plot.Axes.Color(axisColor);
+        plot.HideGrid();
+
+        ChartContainer.Children.Clear();
+        ChartContainer.Children.Add(plotView);
+        plotView.Refresh();
+    }
+#endif
 
     private void UpdateChartButtonStyles()
     {

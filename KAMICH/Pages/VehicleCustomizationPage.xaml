@@ -4,7 +4,9 @@
              Title="Dostosuj pojazd">
 
     <ScrollView>
-        <VerticalStackLayout Padding="16,0" Spacing="14">
+        <VerticalStackLayout Padding="{OnIdiom Phone='16,0', Desktop='24,12'}" Spacing="14"
+                             MaximumWidthRequest="{OnIdiom Phone=10000, Desktop=760}"
+                             HorizontalOptions="{OnIdiom Phone=Fill, Desktop=Center}">
 
             <!-- Nagłówek strony -->
             <VerticalStackLayout Spacing="4">

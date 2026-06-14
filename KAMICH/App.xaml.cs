@@ -22,7 +22,14 @@ namespace KAMICH
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
-            return new Window(new AppShell());
+            var window = new Window(new AppShell());
+#if WINDOWS || MACCATALYST
+            window.Width = 1100;
+            window.Height = 760;
+            window.MinimumWidth = 800;
+            window.MinimumHeight = 600;
+#endif
+            return window;
         }
         private async Task LoadSettingsInBackground()
         {

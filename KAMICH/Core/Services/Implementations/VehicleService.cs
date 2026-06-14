@@ -1,3 +1,4 @@
+using KAMICH.Integrations.Api;
 using KAMICH.Integrations.Linqo.Models;
 using System.Globalization;
 using System.Text.Json;
@@ -7,7 +8,6 @@ namespace KAMICH.Core.Services.Implementations;
 public class VehicleService : IVehicleService
 {
     private readonly HttpClient _http;
-    private readonly IMemoryService _memoryService;
     private readonly ICacheService _cacheService;
     private readonly ISettingsService _settings;
 
@@ -16,10 +16,9 @@ public class VehicleService : IVehicleService
         PropertyNameCaseInsensitive = true
     };
 
-    public VehicleService(HttpClient http, IMemoryService memoryService, ICacheService cacheService, ISettingsService settings)
+    public VehicleService(HttpClient http, ICacheService cacheService, ISettingsService settings)
     {
         _http = http;
-        _memoryService = memoryService;
         _cacheService = cacheService;
         _settings = settings;
     }
@@ -50,21 +49,11 @@ public class VehicleService : IVehicleService
         var text = await resp.Content.ReadAsStringAsync(ct);
         var vehicles = JsonSerializer.Deserialize<List<VehicleModelDto>>(text, JsonOpts) ?? new();
 
-        foreach (var v in vehicles)
-        {
-            var memory = await _memoryService.GetMemoryVehiclesDetails(v.Id);
-            if (memory != null)
-            {
-                v.Color = memory.CustomColor;
-                v.Icon = memory.CustomIcon;
-            }
-        }
-
         await _cacheService.UpdateCachedVehicles(vehicles);
         return vehicles;
     }
 
-    public async Task<VehicleDetailsViewModel> GetVehiclesDetails(Guid objectId, DateTimeOffset from,
+    public async Task<VehicleDetailsDto> GetVehiclesDetails(Guid objectId, DateTimeOffset from,
         DateTimeOffset to, CancellationToken ct = default)
     {
         var fromStr = from.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ssZ", CultureInfo.InvariantCulture);
@@ -78,19 +67,10 @@ public class VehicleService : IVehicleService
         using var resp = await _http.SendAsync(req, ct);
         resp.EnsureSuccessStatusCode();
         var text = await resp.Content.ReadAsStringAsync(ct);
-        var vm = JsonSerializer.Deserialize<VehicleDetailsViewModel>(text, JsonOpts) ?? new();
-
-        var vehicleMemory = await _memoryService.GetMemoryVehiclesDetails(objectId);
-        if (vehicleMemory != null)
-        {
-            vm.CustomColor = vehicleMemory.CustomColor;
-            vm.CustomIcon = vehicleMemory.CustomIcon;
-        }
-
-        return vm;
+        return JsonSerializer.Deserialize<VehicleDetailsDto>(text, JsonOpts) ?? new();
     }
 
-    public async Task<List<StatsViewModel>> GetStats(Guid vehicleId, string type, CancellationToken ct = default)
+    public async Task<List<StatsDto>> GetStats(Guid vehicleId, string type, CancellationToken ct = default)
     {
         var apiKey = await GetApiKeyOrThrow();
         using var req = new HttpRequestMessage(HttpMethod.Get,
@@ -100,10 +80,10 @@ public class VehicleService : IVehicleService
         using var resp = await _http.SendAsync(req, ct);
         resp.EnsureSuccessStatusCode();
         var text = await resp.Content.ReadAsStringAsync(ct);
-        return JsonSerializer.Deserialize<List<StatsViewModel>>(text, JsonOpts) ?? new();
+        return JsonSerializer.Deserialize<List<StatsDto>>(text, JsonOpts) ?? new();
     }
 
-    public async Task<StatsViewModel?> GetStatsByPeriod(Guid vehicleId, string type, DateTime periodStart, CancellationToken ct = default)
+    public async Task<StatsDto?> GetStatsByPeriod(Guid vehicleId, string type, DateTime periodStart, CancellationToken ct = default)
     {
         var apiKey = await GetApiKeyOrThrow();
         var dateStr = periodStart.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
@@ -116,7 +96,7 @@ public class VehicleService : IVehicleService
         resp.EnsureSuccessStatusCode();
         var text = await resp.Content.ReadAsStringAsync(ct);
         if (string.IsNullOrWhiteSpace(text)) return null;
-        return JsonSerializer.Deserialize<StatsViewModel>(text, JsonOpts);
+        return JsonSerializer.Deserialize<StatsDto>(text, JsonOpts);
     }
 
     public async Task<WorkLogDto?> GetWorkLog(Guid vehicleId, DateTime date, CancellationToken ct = default)

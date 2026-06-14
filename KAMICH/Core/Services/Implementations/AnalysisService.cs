@@ -33,18 +33,8 @@ public class AnalysisService : IAnalysisService
             var details = await _vehicleService.GetVehiclesDetails(vehicle.Id, from, to, ct: cts);
 
             var workHours = details.HoursBetweenFirstOnAndLastOff ?? 0;
-            var mileage = details.DailyMileage ?? 0;
 
-            var fuelPrice = vehicle.FuelPrice ?? settings.GlobalVehicleSettings.FuelPrice;
-            var hourlyPrice = vehicle.HourlyPrice ?? settings.GlobalVehicleSettings.HourlyPrice;
-            var operatorPrice = vehicle.OperatorPrice ?? settings.GlobalVehicleSettings.OperatorPrice;
-            var fuelConsumptionPerHour = vehicle.FuelConsumptionPerHour ?? settings.GlobalVehicleSettings.FuelConsumptionPerHour;
-
-            var income = (hourlyPrice * workHours)
-                       - (operatorPrice * workHours)
-                       - (fuelConsumptionPerHour * workHours * fuelPrice);
-
-            _incomeCache[vehicle.Id] = income;
+            _incomeCache[vehicle.Id] = CalculateIncome(vehicle, settings, workHours);
         }
 
         return _incomeCache.Values.Sum();
@@ -75,16 +65,7 @@ public class AnalysisService : IAnalysisService
 
             var workHours = latest.TotalHours ?? 0;
 
-            var fuelPrice = vehicle.FuelPrice ?? settings.GlobalVehicleSettings.FuelPrice;
-            var hourlyPrice = vehicle.HourlyPrice ?? settings.GlobalVehicleSettings.HourlyPrice;
-            var operatorPrice = vehicle.OperatorPrice ?? settings.GlobalVehicleSettings.OperatorPrice;
-            var fuelConsumptionPerHour = vehicle.FuelConsumptionPerHour ?? settings.GlobalVehicleSettings.FuelConsumptionPerHour;
-
-            var income = (hourlyPrice * workHours)
-                       - (operatorPrice * workHours)
-                       - (fuelConsumptionPerHour * workHours * fuelPrice);
-
-            _incomeCache[vehicle.Id] = income;
+            _incomeCache[vehicle.Id] = CalculateIncome(vehicle, settings, workHours);
         }
 
         return _incomeCache.Values.Sum();
@@ -102,16 +83,7 @@ public class AnalysisService : IAnalysisService
             var workLog = await _vehicleService.GetWorkLog(vehicle.Id, date, ct: cts);
             var workHours = workLog?.HoursWorked ?? 0;
 
-            var fuelPrice = vehicle.FuelPrice ?? settings.GlobalVehicleSettings.FuelPrice;
-            var hourlyPrice = vehicle.HourlyPrice ?? settings.GlobalVehicleSettings.HourlyPrice;
-            var operatorPrice = vehicle.OperatorPrice ?? settings.GlobalVehicleSettings.OperatorPrice;
-            var fuelConsumptionPerHour = vehicle.FuelConsumptionPerHour ?? settings.GlobalVehicleSettings.FuelConsumptionPerHour;
-
-            var income = (hourlyPrice * workHours)
-                       - (operatorPrice * workHours)
-                       - (fuelConsumptionPerHour * workHours * fuelPrice);
-
-            _incomeCache[vehicle.Id] = income;
+            _incomeCache[vehicle.Id] = CalculateIncome(vehicle, settings, workHours);
         }
 
         return _incomeCache.Values.Sum();
@@ -129,18 +101,21 @@ public class AnalysisService : IAnalysisService
             var stats = await _vehicleService.GetStatsByPeriod(vehicle.Id, statsType, periodStart, ct: cts);
             var workHours = stats?.TotalHours ?? 0;
 
-            var fuelPrice = vehicle.FuelPrice ?? settings.GlobalVehicleSettings.FuelPrice;
-            var hourlyPrice = vehicle.HourlyPrice ?? settings.GlobalVehicleSettings.HourlyPrice;
-            var operatorPrice = vehicle.OperatorPrice ?? settings.GlobalVehicleSettings.OperatorPrice;
-            var fuelConsumptionPerHour = vehicle.FuelConsumptionPerHour ?? settings.GlobalVehicleSettings.FuelConsumptionPerHour;
-
-            var income = (hourlyPrice * workHours)
-                       - (operatorPrice * workHours)
-                       - (fuelConsumptionPerHour * workHours * fuelPrice);
-
-            _incomeCache[vehicle.Id] = income;
+            _incomeCache[vehicle.Id] = CalculateIncome(vehicle, settings, workHours);
         }
 
         return _incomeCache.Values.Sum();
     }
-}
+
+    private static double CalculateIncome(MemoryVehicleDetails vehicle, AppSettingsModel settings, double workHours)
+    {
+        var fuelPrice = vehicle.FuelPrice ?? settings.GlobalVehicleSettings.FuelPrice;
+        var hourlyPrice = vehicle.HourlyPrice ?? settings.GlobalVehicleSettings.HourlyPrice;
+        var operatorPrice = vehicle.OperatorPrice ?? settings.GlobalVehicleSettings.OperatorPrice;
+        var fuelConsumptionPerHour = vehicle.FuelConsumptionPerHour ?? settings.GlobalVehicleSettings.FuelConsumptionPerHour;
+
+        return (hourlyPrice * workHours)
+             - (operatorPrice * workHours)
+             - (fuelConsumptionPerHour * workHours * fuelPrice);
+    }
+} 

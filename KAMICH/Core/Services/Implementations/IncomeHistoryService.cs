@@ -25,7 +25,7 @@ public class IncomeHistoryService : IIncomeHistoryService
         catch { }
     }
 
-    public List<IncomeHistoryEntry> GetHistory(string period, int count = 12)
+    public List<IncomeHistoryEntry> GetHistory(string period, int count)
     {
         return _entries
             .Where(e => e.Period == period)

@@ -15,7 +15,9 @@
 
     <Grid BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
         <ScrollView>
-            <VerticalStackLayout Padding="24" Spacing="20" VerticalOptions="Center">
+            <VerticalStackLayout Padding="24" Spacing="20" VerticalOptions="Center"
+                                 MaximumWidthRequest="{OnIdiom Phone=10000, Desktop=560}"
+                                 HorizontalOptions="{OnIdiom Phone=Fill, Desktop=Center}">
 
                 <!-- Logo / Header -->
                 <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
