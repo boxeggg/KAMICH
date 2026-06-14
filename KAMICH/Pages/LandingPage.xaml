@@ -21,7 +21,7 @@
 
     <Grid BackgroundColor="{AppThemeBinding Light={StaticResource SurfaceLight}, Dark={StaticResource SurfaceDark}}">
         <ScrollView>
-            <VerticalStackLayout Padding="16,12" Spacing="16">
+            <VerticalStackLayout Padding="16,12" Spacing="{OnIdiom Phone=16, Desktop=24}">
                 <Label x:Name="apiStatus" Text="" IsVisible="False"
                      Grid.Row="0" />
 
