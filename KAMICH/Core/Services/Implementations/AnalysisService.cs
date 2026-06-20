@@ -9,6 +9,7 @@ public class AnalysisService : IAnalysisService
     private readonly ISettingsService _settingsService;
     
     private Dictionary<Guid, double> _incomeCache = new Dictionary<Guid, double>();
+    private Dictionary<Guid, double> _hoursCache = new Dictionary<Guid, double>();
     
 
     public AnalysisService(IVehicleService vehicleService, ISettingsService settingsService)
@@ -27,6 +28,7 @@ public class AnalysisService : IAnalysisService
         var to = DateTimeOffset.Now;
 
         _incomeCache.Clear();
+        _hoursCache.Clear();
 
         foreach (var vehicle in vehicles)
         {
@@ -34,6 +36,7 @@ public class AnalysisService : IAnalysisService
 
             var workHours = details.HoursBetweenFirstOnAndLastOff ?? 0;
 
+            _hoursCache[vehicle.Id] = workHours;
             _incomeCache[vehicle.Id] = CalculateIncome(vehicle, settings, workHours);
         }
 
@@ -50,12 +53,18 @@ public class AnalysisService : IAnalysisService
         return 0;
     }
 
+    public double GetTotalHours() => _hoursCache.Values.Sum();
+
+    public double GetHoursForVehicle(Guid vehicleId) =>
+        _hoursCache.TryGetValue(vehicleId, out var hours) ? hours : 0;
+
     public async Task<double> CalculateIncomeFromStats(CancellationToken cts, List<MemoryVehicleDetails> vehicles, string statsType)
     {
         if (vehicles.Count == 0) return 0;
         var settings = await _settingsService.LoadAsync();
 
         _incomeCache.Clear();
+        _hoursCache.Clear();
 
         foreach (var vehicle in vehicles)
         {
@@ -65,6 +74,7 @@ public class AnalysisService : IAnalysisService
 
             var workHours = latest.TotalHours ?? 0;
 
+            _hoursCache[vehicle.Id] = workHours;
             _incomeCache[vehicle.Id] = CalculateIncome(vehicle, settings, workHours);
         }
 
@@ -77,12 +87,14 @@ public class AnalysisService : IAnalysisService
         var settings = await _settingsService.LoadAsync();
 
         _incomeCache.Clear();
+        _hoursCache.Clear();
 
         foreach (var vehicle in vehicles)
         {
             var workLog = await _vehicleService.GetWorkLog(vehicle.Id, date, ct: cts);
             var workHours = workLog?.HoursWorked ?? 0;
 
+            _hoursCache[vehicle.Id] = workHours;
             _incomeCache[vehicle.Id] = CalculateIncome(vehicle, settings, workHours);
         }
 
@@ -95,12 +107,14 @@ public class AnalysisService : IAnalysisService
         var settings = await _settingsService.LoadAsync();
 
         _incomeCache.Clear();
+        _hoursCache.Clear();
 
         foreach (var vehicle in vehicles)
         {
             var stats = await _vehicleService.GetStatsByPeriod(vehicle.Id, statsType, periodStart, ct: cts);
             var workHours = stats?.TotalHours ?? 0;
 
+            _hoursCache[vehicle.Id] = workHours;
             _incomeCache[vehicle.Id] = CalculateIncome(vehicle, settings, workHours);
         }
 

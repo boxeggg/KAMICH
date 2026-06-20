@@ -6,6 +6,7 @@ public class HomePageViewModel
 {
     public string PeriodLabel { get; set; } = "Przychód dzienny";
     public double TotalIncome { get; set; }
+    public double TotalHours { get; set; }
     public IEnumerable<SimpleVehicleVm> Vehicles { get; set; } = new List<SimpleVehicleVm>();
     public double FixedCostHotel { get; set; }
     public double FixedCostTransport { get; set; }
