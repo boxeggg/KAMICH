@@ -77,7 +77,8 @@ public class HomeService : IHomeService
             Income = _analysisService.GetIncomeForVehicle(cts, item.Id),
             Hours = _analysisService.GetHoursForVehicle(item.Id),
             Color = item.CustomColor,
-            Icon = item.CustomIcon
+            Icon = item.CustomIcon,
+            IsCurrentlyWorking = _analysisService.IsVehicleWorking(item.Id)
         }).ToList();
 
         // Save to history

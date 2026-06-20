@@ -284,11 +284,19 @@
                                                TextColor="White" />
                                     </Border>
 
-                                    <!-- Name -->
-                                    <Label Grid.Column="1" Text="{Binding Name}"
-                                           FontSize="15" FontAttributes="Bold"
-                                           VerticalTextAlignment="Center"
-                                           LineBreakMode="TailTruncation" />
+                                    <!-- Name + live working status -->
+                                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                        <Label Text="{Binding Name}"
+                                               FontSize="15" FontAttributes="Bold"
+                                               LineBreakMode="TailTruncation" />
+                                        <HorizontalStackLayout Spacing="6" IsVisible="{Binding IsCurrentlyWorking}">
+                                            <Border WidthRequest="8" HeightRequest="8" Padding="0"
+                                                    StrokeShape="Ellipse" Stroke="Transparent" StrokeThickness="0"
+                                                    BackgroundColor="{StaticResource AccentGreen}" VerticalOptions="Center" />
+                                            <Label Text="Pracuje teraz" FontSize="11"
+                                                   TextColor="{StaticResource AccentGreen}" VerticalOptions="Center" />
+                                        </HorizontalStackLayout>
+                                    </VerticalStackLayout>
 
                                     <!-- Income -->
                                     <VerticalStackLayout Grid.Column="2" VerticalOptions="Center"
