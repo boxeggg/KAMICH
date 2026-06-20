@@ -75,6 +75,7 @@ public class HomeService : IHomeService
             Name = item.Name,
             Id = item.Id,
             Income = _analysisService.GetIncomeForVehicle(cts, item.Id),
+            Hours = _analysisService.GetHoursForVehicle(item.Id),
             Color = item.CustomColor,
             Icon = item.CustomIcon
         }).ToList();
@@ -112,6 +113,7 @@ public class HomeService : IHomeService
         {
             PeriodLabel = periodLabel,
             TotalIncome = totalIncome,
+            TotalHours = _analysisService.GetTotalHours(),
             Vehicles = vms,
             FixedCostHotel = monthly.Hotel * multiplier,
             FixedCostTransport = monthly.Transport * multiplier,

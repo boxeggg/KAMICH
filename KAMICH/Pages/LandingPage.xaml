@@ -135,16 +135,56 @@
                 <!-- Hidden DatePicker for system dialog -->
                 <DatePicker x:Name="HiddenDatePicker" IsVisible="False" DateSelected="OnDateSelected" />
 
-                <!-- Hero Income Card -->
-                <Frame Padding="20" CornerRadius="16" HasShadow="False" BorderColor="Transparent"
+                <!-- Hero: income + worked hours in one card, clearly divided -->
+                <Frame Padding="{OnIdiom Phone=20, Desktop=24}" CornerRadius="12" HasShadow="False" BorderColor="Transparent"
                        BackgroundColor="{StaticResource AccentGreen}">
-                    <VerticalStackLayout Spacing="4">
-                        <Label x:Name="PeriodTitle" Text="{Binding PeriodLabel}"
-                               FontSize="13" TextColor="#C8E6C9" />
-                        <Label Text="{Binding TotalIncome, StringFormat='{}{0:N2} zł'}"
-                               FontSize="{OnIdiom Phone=34, Desktop=44}" FontAttributes="Bold" TextColor="White" />
-                        <Label Text="Szacowany przychód netto" FontSize="11" TextColor="#A5D6A7" Margin="0,4,0,0" />
-                    </VerticalStackLayout>
+                    <Grid ColumnDefinitions="{OnIdiom Phone='*', Desktop='*,Auto,*'}"
+                          RowDefinitions="{OnIdiom Phone='Auto,Auto,Auto', Desktop='Auto'}"
+                          ColumnSpacing="{OnIdiom Phone=0, Desktop=20}"
+                          RowSpacing="{OnIdiom Phone=14, Desktop=0}">
+
+                        <!-- Income -->
+                        <Grid Grid.Row="0" Grid.Column="0" ColumnDefinitions="Auto,*" ColumnSpacing="14" VerticalOptions="Center">
+                            <Border Grid.Column="0" WidthRequest="44" HeightRequest="44" Padding="0"
+                                    StrokeShape="Ellipse" Stroke="Transparent" StrokeThickness="0"
+                                    BackgroundColor="#22FFFFFF" VerticalOptions="Center">
+                                <Label Text="&#xF555;" FontFamily="FASolid" FontSize="20" TextColor="White"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label x:Name="PeriodTitle" Text="{Binding PeriodLabel}"
+                                       FontSize="13" TextColor="#C8E6C9" />
+                                <Label Text="{Binding TotalIncome, StringFormat='{}{0:N2} zł'}"
+                                       FontSize="{OnIdiom Phone=30, Desktop=38}" FontAttributes="Bold" TextColor="White"
+                                       LineBreakMode="TailTruncation" />
+                                <Label Text="Szacowany przychód netto" FontSize="11" TextColor="#A5D6A7" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                        <!-- Divider: vertical on desktop, horizontal on phone -->
+                        <BoxView Grid.Row="{OnIdiom Phone=1, Desktop=0}" Grid.Column="{OnIdiom Phone=0, Desktop=1}"
+                                 WidthRequest="{OnIdiom Phone=-1, Desktop=1}" HeightRequest="{OnIdiom Phone=1, Desktop=-1}"
+                                 HorizontalOptions="{OnIdiom Phone=Fill, Desktop=Center}"
+                                 VerticalOptions="{OnIdiom Phone=Center, Desktop=Fill}"
+                                 BackgroundColor="Transparent" Color="#33FFFFFF" />
+
+                        <!-- Worked hours -->
+                        <Grid Grid.Row="{OnIdiom Phone=2, Desktop=0}" Grid.Column="{OnIdiom Phone=0, Desktop=2}"
+                              ColumnDefinitions="Auto,*" ColumnSpacing="14" VerticalOptions="Center">
+                            <Border Grid.Column="0" WidthRequest="44" HeightRequest="44" Padding="0"
+                                    StrokeShape="Ellipse" Stroke="Transparent" StrokeThickness="0"
+                                    BackgroundColor="#22FFFFFF" VerticalOptions="Center">
+                                <Label Text="&#xF017;" FontFamily="FASolid" FontSize="20" TextColor="White"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                            </Border>
+                            <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                                <Label Text="Przepracowane godziny" FontSize="13" TextColor="#C8E6C9" />
+                                <Label Text="{Binding TotalHours, StringFormat='{}{0:F1} h'}"
+                                       FontSize="{OnIdiom Phone=28, Desktop=30}" FontAttributes="Bold" TextColor="White" />
+                            </VerticalStackLayout>
+                        </Grid>
+
+                    </Grid>
                 </Frame>
 
                 <!-- Loading -->
@@ -257,6 +297,9 @@
                                                FontSize="15" FontAttributes="Bold"
                                                HorizontalTextAlignment="End"
                                                TextColor="{StaticResource AccentGreen}" />
+                                        <Label Text="{Binding Hours, StringFormat='{}{0:F1} h'}"
+                                               FontSize="11" HorizontalTextAlignment="End"
+                                               TextColor="{AppThemeBinding Light={StaticResource SubtextLight}, Dark={StaticResource SubtextDark}}" />
                                     </VerticalStackLayout>
                                 </Grid>
                             </Frame>
