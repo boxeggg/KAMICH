@@ -1,4 +1,4 @@
-﻿using KAMICH.Core.Models;
+using KAMICH.Core.Models;
 using KAMICH.Integrations.Linqo.Models;
 
 namespace KAMICH.Core.Services.Implementations;
@@ -7,18 +7,16 @@ public class AnalysisService : IAnalysisService
 {
     private readonly IVehicleService _vehicleService;
     private readonly ISettingsService _settingsService;
-    
-    private Dictionary<Guid, double> _incomeCache = new Dictionary<Guid, double>();
-    private Dictionary<Guid, double> _hoursCache = new Dictionary<Guid, double>();
-    private Dictionary<Guid, bool> _workingIndicatorCache = new Dictionary<Guid, bool>();
 
+    // One entry per vehicle, holding the result of the most recent Calculate* call.
+    private readonly Dictionary<Guid, VehicleAnalysis> _cache = new();
 
     public AnalysisService(IVehicleService vehicleService, ISettingsService settingsService)
     {
         _vehicleService = vehicleService;
         _settingsService = settingsService;
     }
-    
+
     public async Task<double> CalculateDailyIncome(CancellationToken cts, List<MemoryVehicleDetails> vehicles)
     {
         if (vehicles.Count == 0) return 0;
@@ -28,50 +26,28 @@ public class AnalysisService : IAnalysisService
         var from = new DateTimeOffset(localToday, DateTimeOffset.Now.Offset);
         var to = DateTimeOffset.Now;
 
-        _incomeCache.Clear();
-        _hoursCache.Clear();
+        _cache.Clear();
 
         foreach (var vehicle in vehicles)
         {
             var details = await _vehicleService.GetVehiclesDetails(vehicle.Id, from, to, ct: cts);
             var workHours = details.HoursBetweenFirstOnAndLastOff ?? 0;
-            var isWorking = details.isCurrentlyWorking;
 
-            _hoursCache[vehicle.Id] = workHours;
-            _workingIndicatorCache[vehicle.Id] = isWorking;
-            _incomeCache[vehicle.Id] = CalculateIncome(vehicle, settings, workHours);
+            _cache[vehicle.Id] = new VehicleAnalysis(
+                CalculateIncome(vehicle, settings, workHours),
+                workHours,
+                details.isCurrentlyWorking);
         }
 
-        return _incomeCache.Values.Sum();
+        return _cache.Values.Sum(a => a.Income);
     }
-
-
-    public bool IsVehicleWorking(Guid vehicleId)
-    {
-        if (_workingIndicatorCache.TryGetValue(vehicleId, out var income))
-            return income;
-        return false;
-    }
-
-    public double GetIncomeForVehicle(CancellationToken cts, Guid vehicleId)
-    {
-        if (_incomeCache.TryGetValue(vehicleId, out var income))
-            return income;
-        return 0;
-    }
-
-    public double GetTotalHours() => _hoursCache.Values.Sum();
-
-    public double GetHoursForVehicle(Guid vehicleId) =>
-        _hoursCache.TryGetValue(vehicleId, out var hours) ? hours : 0;
 
     public async Task<double> CalculateIncomeFromStats(CancellationToken cts, List<MemoryVehicleDetails> vehicles, string statsType)
     {
         if (vehicles.Count == 0) return 0;
         var settings = await _settingsService.LoadAsync();
 
-        _incomeCache.Clear();
-        _hoursCache.Clear();
+        _cache.Clear();
 
         foreach (var vehicle in vehicles)
         {
@@ -80,12 +56,10 @@ public class AnalysisService : IAnalysisService
             if (latest == null) continue;
 
             var workHours = latest.TotalHours ?? 0;
-
-            _hoursCache[vehicle.Id] = workHours;
-            _incomeCache[vehicle.Id] = CalculateIncome(vehicle, settings, workHours);
+            _cache[vehicle.Id] = new VehicleAnalysis(CalculateIncome(vehicle, settings, workHours), workHours, false);
         }
 
-        return _incomeCache.Values.Sum();
+        return _cache.Values.Sum(a => a.Income);
     }
 
     public async Task<double> CalculateIncomeFromWorkLogs(CancellationToken cts, List<MemoryVehicleDetails> vehicles, DateTime date)
@@ -93,19 +67,16 @@ public class AnalysisService : IAnalysisService
         if (vehicles.Count == 0) return 0;
         var settings = await _settingsService.LoadAsync();
 
-        _incomeCache.Clear();
-        _hoursCache.Clear();
+        _cache.Clear();
 
         foreach (var vehicle in vehicles)
         {
             var workLog = await _vehicleService.GetWorkLog(vehicle.Id, date, ct: cts);
             var workHours = workLog?.HoursWorked ?? 0;
-
-            _hoursCache[vehicle.Id] = workHours;
-            _incomeCache[vehicle.Id] = CalculateIncome(vehicle, settings, workHours);
+            _cache[vehicle.Id] = new VehicleAnalysis(CalculateIncome(vehicle, settings, workHours), workHours, false);
         }
 
-        return _incomeCache.Values.Sum();
+        return _cache.Values.Sum(a => a.Income);
     }
 
     public async Task<double> CalculateIncomeFromStatsByPeriod(CancellationToken cts, List<MemoryVehicleDetails> vehicles, string statsType, DateTime periodStart)
@@ -113,20 +84,28 @@ public class AnalysisService : IAnalysisService
         if (vehicles.Count == 0) return 0;
         var settings = await _settingsService.LoadAsync();
 
-        _incomeCache.Clear();
-        _hoursCache.Clear();
+        _cache.Clear();
 
         foreach (var vehicle in vehicles)
         {
             var stats = await _vehicleService.GetStatsByPeriod(vehicle.Id, statsType, periodStart, ct: cts);
             var workHours = stats?.TotalHours ?? 0;
-
-            _hoursCache[vehicle.Id] = workHours;
-            _incomeCache[vehicle.Id] = CalculateIncome(vehicle, settings, workHours);
+            _cache[vehicle.Id] = new VehicleAnalysis(CalculateIncome(vehicle, settings, workHours), workHours, false);
         }
 
-        return _incomeCache.Values.Sum();
+        return _cache.Values.Sum(a => a.Income);
     }
+
+    public double GetIncomeForVehicle(CancellationToken cts, Guid vehicleId) =>
+        _cache.TryGetValue(vehicleId, out var a) ? a.Income : 0;
+
+    public double GetHoursForVehicle(Guid vehicleId) =>
+        _cache.TryGetValue(vehicleId, out var a) ? a.Hours : 0;
+
+    public bool IsVehicleWorking(Guid vehicleId) =>
+        _cache.TryGetValue(vehicleId, out var a) && a.IsWorking;
+
+    public double GetTotalHours() => _cache.Values.Sum(a => a.Hours);
 
     private static double CalculateIncome(MemoryVehicleDetails vehicle, AppSettingsModel settings, double workHours)
     {
@@ -139,4 +118,7 @@ public class AnalysisService : IAnalysisService
              - (operatorPrice * workHours)
              - (fuelConsumptionPerHour * workHours * fuelPrice);
     }
-} 
+
+    // Per-vehicle analysis result for the current period.
+    private sealed record VehicleAnalysis(double Income, double Hours, bool IsWorking);
+}
