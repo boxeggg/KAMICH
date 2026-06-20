@@ -27,4 +27,5 @@ public class SimpleVehicleVm
     public double Hours { get; set; }
     public Color Color { get; set; }
     public string Icon { get; set; }
+    public bool IsCurrentlyWorking { get; set; }
 }

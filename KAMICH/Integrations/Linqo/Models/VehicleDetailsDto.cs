@@ -9,4 +9,5 @@ public class VehicleDetailsDto
     [JsonPropertyName("lastIgnitionOff")] public DateTimeOffset? LastIgnitionOff { get; set; }
     [JsonPropertyName("hoursBetweenFirstOnAndLastOff")] public double? HoursBetweenFirstOnAndLastOff { get; set; }
     [JsonPropertyName("dailyMileage")] public double? DailyMileage { get; set; }
+    [JsonPropertyName("isCurrentlyWorking")] public bool isCurrentlyWorking { get; set; }
 }

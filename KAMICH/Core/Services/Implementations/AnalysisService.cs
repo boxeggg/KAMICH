@@ -10,7 +10,8 @@ public class AnalysisService : IAnalysisService
     
     private Dictionary<Guid, double> _incomeCache = new Dictionary<Guid, double>();
     private Dictionary<Guid, double> _hoursCache = new Dictionary<Guid, double>();
-    
+    private Dictionary<Guid, bool> _workingIndicatorCache = new Dictionary<Guid, bool>();
+
 
     public AnalysisService(IVehicleService vehicleService, ISettingsService settingsService)
     {
@@ -33,10 +34,11 @@ public class AnalysisService : IAnalysisService
         foreach (var vehicle in vehicles)
         {
             var details = await _vehicleService.GetVehiclesDetails(vehicle.Id, from, to, ct: cts);
-
             var workHours = details.HoursBetweenFirstOnAndLastOff ?? 0;
+            var isWorking = details.isCurrentlyWorking;
 
             _hoursCache[vehicle.Id] = workHours;
+            _workingIndicatorCache[vehicle.Id] = isWorking;
             _incomeCache[vehicle.Id] = CalculateIncome(vehicle, settings, workHours);
         }
 
@@ -44,7 +46,12 @@ public class AnalysisService : IAnalysisService
     }
 
 
-
+    public bool IsVehicleWorking(Guid vehicleId)
+    {
+        if (_workingIndicatorCache.TryGetValue(vehicleId, out var income))
+            return income;
+        return false;
+    }
 
     public double GetIncomeForVehicle(CancellationToken cts, Guid vehicleId)
     {
