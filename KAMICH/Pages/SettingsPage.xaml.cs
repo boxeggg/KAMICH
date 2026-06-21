@@ -14,6 +14,8 @@ public partial class SettingsPage : ContentPage
     {
         InitializeComponent();
         _settings = settings;
+
+        VersionLabel.Text = $"Wersja {AppInfo.Current.VersionString} ({AppInfo.Current.BuildString})";
     }
 
     protected override async void OnAppearing()

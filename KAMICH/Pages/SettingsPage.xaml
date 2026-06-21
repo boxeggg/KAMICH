@@ -223,6 +223,11 @@
                     </Grid>
                 </VerticalStackLayout>
             </Frame>
+
+            <!-- App version -->
+            <Label x:Name="VersionLabel" Text=""
+                   FontSize="11" Opacity="0.5"
+                   HorizontalOptions="Center" Margin="0,8,0,4" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>
