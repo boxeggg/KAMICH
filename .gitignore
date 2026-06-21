@@ -1,10 +1,15 @@
-﻿################################################################################
-# Ten plik .gitignore został utworzony automatycznie przez Microsoft(R) Visual Studio.
+################################################################################
+# .gitignore — Visual Studio / .NET MAUI
 ################################################################################
 
 /.vs/
-/KAMICH/bin/Debug/
-/KAMICH/obj/
-/KAMICH/KAMICH.csproj.user
-/KAMICH/KAMICH.csproj.user
-/KAMICH/bin/Release/net9.0-windows10.0.19041.0/win-x64
+*.user
+
+[Bb]in/
+[Oo]bj/
+
+*.apk
+*.aab
+
+*.keystore
+*.jks

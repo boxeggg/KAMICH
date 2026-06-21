@@ -56,8 +56,8 @@ namespace KAMICH
             builder.Services.AddSingleton<HttpClient>(sp => new HttpClient
             {
 #if DEBUG
-                // BaseAddress = new Uri("http://10.0.2.2:8080/")
-                BaseAddress = new Uri("https://kamich-api-production.up.railway.app/"),
+                 // BaseAddress = new Uri("http://10.0.2.2:8080/"),
+                 BaseAddress = new Uri("https://kamich-api-production.up.railway.app/"),
 #else
                 BaseAddress = new Uri("https://kamich-api-production.up.railway.app/"),
 #endif
