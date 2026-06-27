@@ -1,4 +1,4 @@
-name: Release Android APK 1.0.2
+name: Release Android APK 1.0.3
 
 # Releases on pushing a version tag, e.g. v1.0, v1.1
 on:
@@ -23,13 +23,6 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Setup .NET 9
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '9.0.x'
-      - name: Pin SDK version
-        run: |
-          echo '{"sdk":{"version":"9.0.300","rollForward":"latestPatch"}}' > global.json
 
       - name: Install MAUI Android workload
         run: dotnet workload install maui-android
@@ -41,8 +34,8 @@ jobs:
 
       - name: Publish signed APK
         run: |
-          dotnet publish KAMICH/KAMICH.csproj -f net9.0-android -c Release \
-            -p:TargetFrameworks=net9.0-android
+          dotnet publish KAMICH/KAMICH.csproj -f net10.0-android -c Release \
+            -p:TargetFrameworks=net10.0-android
             -p:AndroidKeyStore=true \
             -p:AndroidSigningKeyStore="$RUNNER_TEMP/kamich.keystore" \
             -p:AndroidSigningKeyAlias=kamich \
