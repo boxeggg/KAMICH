@@ -45,6 +45,9 @@
 	<PropertyGroup Condition="'$(Configuration)' == 'Release' And $(TargetFramework.Contains('-android'))">
 		<AndroidPackageFormat>apk</AndroidPackageFormat>
 	</PropertyGroup>
+	<PropertyGroup>
+  		<ValidateXcodeVersion>false</ValidateXcodeVersion>
+	</PropertyGroup>
 
 	<ItemGroup>
 		<!-- App Icon -->
