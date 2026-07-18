@@ -5,13 +5,16 @@ using Microcharts;
 using SkiaSharp;
 using System.Diagnostics;
 using KAMICH.Core.ViewModels;
-
+#if ANDROID
+using KAMICH.Platforms.Android;
+#endif
 namespace KAMICH.Pages;
 
 public partial class LandingPage : ContentPage
 {
     private readonly IHomeService _homeService;
     private readonly ISettingsService _settings;
+    private readonly IApkUpdateService _updateService;
     private string _currentPeriod = "DAILY";
     private CancellationTokenSource _cts;
     private bool _doneHealthCheck = false;
@@ -26,11 +29,12 @@ public partial class LandingPage : ContentPage
     private DateTime _selectedMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
     private DateTime _selectedYear = new DateTime(DateTime.Now.Year, 1, 1);
 
-    public LandingPage(IHomeService homeService, ISettingsService settings)
+    public LandingPage(IHomeService homeService, ISettingsService settings, IApkUpdateService updateService)
     {
         InitializeComponent();
         _homeService = homeService;
         _settings = settings;
+        _updateService = updateService;
     }
 
     protected override async void OnAppearing()
@@ -43,6 +47,7 @@ public partial class LandingPage : ContentPage
             return;
         }
         if (!_doneHealthCheck) DoHealthCheckAsync();
+        await CheckForUpdateAsync();
         UpdateTabStyles();
         UpdatePickerVisibility();
         await LoadData();
@@ -381,5 +386,66 @@ public partial class LandingPage : ContentPage
         TabDailyLabel.TextColor = _currentPeriod == "DAILY" ? activeText : inactiveText;
         TabMonthlyLabel.TextColor = _currentPeriod == "MONTHLY" ? activeText : inactiveText;
         TabYearlyLabel.TextColor = _currentPeriod == "YEARLY" ? activeText : inactiveText;
+    }
+    private async Task CheckForUpdateAsync()
+    {
+        var latest = await _updateService.GetLatestVersionInfoAsync();
+
+        if (latest is null || !latest.IsCached)
+        {
+            return; // brak polaczenia albo serwer jeszcze nic nie zcache'owal
+        }
+
+        string currentVersion = _updateService.GetCurrentAppVersion();
+
+        if (!_updateService.IsNewerVersionAvailable(latest.VersionName, currentVersion))
+        {
+            return; 
+        }
+
+        bool shouldUpdate = await DisplayAlert(
+            "Dostępna aktualizacja",
+            $"Nowa wersja {latest.VersionName} jest dostępna (masz {currentVersion}). Pobrać teraz?",
+            "Tak",
+            "Nie teraz");
+
+        if (shouldUpdate)
+        {
+            await DownloadAndInstallAsync();
+        }
+    }
+    private async Task DownloadAndInstallAsync()
+    {
+        try
+        {
+            DownloadProgressFrame.IsVisible = true;
+            DownloadProgressBar.Progress = 0;
+            DownloadProgressLabel.Text = "Pobieranie... 0%";
+
+            var progress = new Progress<double>(percent =>
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    DownloadProgressBar.Progress = percent / 100.0;
+                    DownloadProgressLabel.Text = $"Pobieranie... {percent:F0}%";
+                });
+            });
+
+            string filePath = await _updateService.DownloadApkAsync(progress);
+
+            DownloadProgressLabel.Text = "Pobrano, instalowanie...";
+
+#if ANDROID
+            ApkInstaller.InstallApk(filePath);
+#endif
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Błąd", $"Nie udało się pobrać aktualizacji: {ex.Message}", "OK");
+        }
+        finally
+        {
+            DownloadProgressFrame.IsVisible = false;
+        }
     }
 }
