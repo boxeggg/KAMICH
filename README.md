@@ -3,8 +3,6 @@
 **Cross-platform work-hours and revenue tracker for a rail-road excavator rental business, built on live telemetry instead of spreadsheets.**
 
 [![Release](https://img.shields.io/github/v/release/boxeggg/KAMICH)](https://github.com/boxeggg/KAMICH/releases)
-[![Build](https://img.shields.io/github/actions/workflow/status/boxeggg/KAMICH/build.yml)](https://github.com/boxeggg/KAMICH/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 > ⚠️ This app is not meant to be installed by random visitors. It requires a valid **Linqo** API key belonging to the excavator's telematics account to do anything useful. It's shared here as a portfolio project. Screenshots coming soon.
 
@@ -27,7 +25,7 @@ A local company rents out a rail-road excavator (a two-way machine that runs on 
 
 ## Architecture
 
-\`\`\`mermaid
+```mermaid
 flowchart LR
     EXC[Rail-road excavator] -->|telemetry| LINQO[Linqo Telematics API]
     LINQO -->|polled| API[Spring Boot REST API]
@@ -35,7 +33,7 @@ flowchart LR
     API -->|REST| MAUI[.NET MAUI App]
     MAUI --> AND[Android]
     MAUI --> DESK[Desktop]
-\`\`\`
+```
 
 An earlier version had the MAUI client talking to Linqo directly. It was refactored so the Spring Boot backend owns the Linqo integration, and the client only talks to a clean internal REST API. Telemetry parsing and business logic live in one place instead of being duplicated across platforms.
 
