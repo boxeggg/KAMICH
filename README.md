@@ -48,31 +48,6 @@ The whole release pipeline is automated end to end:
 5. The API itself runs on **Railway**.
 
 
-```mermaid
-flowchart TD
-  A[Developer: push / pull request] --> B[GitHub Actions (CI)]
-  B --> L[Cache NuGet packages]
-  B --> M[Matrix: .NET versions / OS]
-  M --> C[Restore\n(dotnet restore)]
-  C --> D[Build\n(dotnet build)]
-  D --> E[Test\n(dotnet test) / Coverage]
-  E --> F[Pack artifact\n(dotnet pack / dotnet publish)]
-  F --> G{Push to branch or tag?}
-  G -->|PR / feature branch| H[Report status to PR]
-  G -->|push to main| I[Create release draft / publish artifacts]
-  G -->|push tag v*| J[Create GitHub Release\nPublish to NuGet / Packages]
-  I --> K[Deploy to environment\n(Azure, Docker registry, etc.)]
-  J --> K
-  subgraph Notifications
-    N[Slack / Email / Teams notifications]
-  end
-  K --> N
-  H --> N
-
-  classDef step fill:#f2f8ff,stroke:#0366d6;
-  class A,B,C,D,E,F,G,H,I,J,K,L,M,N step;
-```
-
 ## Core features
 
 - 📡 **Automatic data ingestion**: telemetry is reported straight to the backend through the Linqo integration, nothing is logged by hand.
