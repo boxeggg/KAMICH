@@ -3,6 +3,7 @@
 **Cross-platform work-hours and revenue tracker for a rail-road excavator rental business, built on live telemetry instead of spreadsheets.**
 
 [![Release](https://img.shields.io/github/v/release/boxeggg/KAMICH)](https://github.com/boxeggg/KAMICH/releases)
+[![Build](https://img.shields.io/github/actions/workflow/status/boxeggg/KAMICH/build.yml)](https://github.com/boxeggg/KAMICH/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 > ⚠️ This app is not meant to be installed by random visitors. It requires a valid **Linqo** API key belonging to the excavator's telematics account to do anything useful. It's shared here as a portfolio project. Screenshots coming soon.
