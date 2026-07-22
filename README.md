@@ -4,13 +4,13 @@
 
 [![Release](https://img.shields.io/github/v/release/boxeggg/KAMICH)](https://github.com/boxeggg/KAMICH/releases)
 
-> ⚠️ This app is not meant to be installed by random visitors. It requires a valid **Linqo** API key belonging to the excavator's telematics account to do anything useful. It's shared here as a portfolio project. Screenshots coming soon.
+> ⚠️ This app is not meant to be installed by random visitors. It requires a valid **Linqo** API key belonging to the excavator's telematics account to do anything useful. It's shared here as a[...]
 
 ## The problem
 
-A local company rents out a rail-road excavator (a two-way machine that runs on both rail and road). Every operating hour is billable, but without a system, tracking how many hours the machine actually worked each day, week, month and year, and what that translates to in revenue, meant manual logs, guesswork, and delayed invoicing.
+A local company rents out a rail-road excavator (a two-way machine that runs on both rail and road). Every operating hour is billable, but without a system, tracking how many hours the machine act[...]
 
-**KAMICH closes that gap.** It ingests operating telemetry automatically through a **Linqo** fleet-telematics integration, aggregates it, and turns raw working hours into daily/monthly/yearly statistics and revenue simulations, on your phone or on a desktop dashboard.
+**KAMICH closes that gap.** It ingests operating telemetry automatically through a **Linqo** fleet-telematics integration, aggregates it, and turns raw working hours into daily/monthly/yearly stat[...]
 
 ## Tech stack
 
@@ -35,7 +35,7 @@ flowchart LR
     MAUI --> DESK[Desktop]
 ```
 
-An earlier version had the MAUI client talking to Linqo directly. It was refactored so the Spring Boot backend owns the Linqo integration, and the client only talks to a clean internal REST API. Telemetry parsing and business logic live in one place instead of being duplicated across platforms.
+An earlier version had the MAUI client talking to Linqo directly. It was refactored so the Spring Boot backend owns the Linqo integration, and the client only talks to a clean internal REST API. T[...]
 
 ## Deployment and CI/CD
 
@@ -46,6 +46,32 @@ The whole release pipeline is automated end to end:
 3. The **Spring Boot API** periodically checks GitHub for a new release, downloads the APK, and caches it.
 4. From there, the API distributes the update over the air to devices already running the app. No manual APK sideloading needed after the first install.
 5. The API itself runs on **Railway**.
+
+
+```mermaid
+flowchart TD
+  A[Developer: push / pull request] --> B[GitHub Actions (CI)]
+  B --> L[Cache NuGet packages]
+  B --> M[Matrix: .NET versions / OS]
+  M --> C[Restore\n(dotnet restore)]
+  C --> D[Build\n(dotnet build)]
+  D --> E[Test\n(dotnet test) / Coverage]
+  E --> F[Pack artifact\n(dotnet pack / dotnet publish)]
+  F --> G{Push to branch or tag?}
+  G -->|PR / feature branch| H[Report status to PR]
+  G -->|push to main| I[Create release draft / publish artifacts]
+  G -->|push tag v*| J[Create GitHub Release\nPublish to NuGet / Packages]
+  I --> K[Deploy to environment\n(Azure, Docker registry, etc.)]
+  J --> K
+  subgraph Notifications
+    N[Slack / Email / Teams notifications]
+  end
+  K --> N
+  H --> N
+
+  classDef step fill:#f2f8ff,stroke:#0366d6;
+  class A,B,C,D,E,F,G,H,I,J,K,L,M,N step;
+```
 
 ## Core features
 
@@ -62,4 +88,4 @@ MIT. Free to use, modify and deploy.
 
 ---
 
-*Solo-developed end to end: Linqo telemetry integration, Spring Boot API on Railway, PostgreSQL schema, tag-triggered CI/CD with self-distributing OTA updates, and the .NET MAUI client for both Android and desktop.*
+*Solo-developed end to end: Linqo telemetry integration, Spring Boot API on Railway, PostgreSQL schema, tag-triggered CI/CD with self-distributing OTA updates, and the .NET MAUI client for both An[...]
