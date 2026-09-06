@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using KAMICH.Core.Services;
 using KAMICH.Core.ViewModels;
+using KAMICH.Exceptions;
 using Microsoft.Maui.Controls;
 
 namespace KAMICH.Pages;
@@ -12,6 +13,7 @@ public partial class VehicleDetails : ContentPage
     private Guid _vehicleId;
     private readonly IVehicleService _vehicleService;
     private readonly IMemoryService _memoryService;
+    private readonly IErrorHandler _errors;
     public string VehicleId
     {
         get => _vehicleId.ToString();
@@ -24,10 +26,11 @@ public partial class VehicleDetails : ContentPage
         }
     }
 
-    public VehicleDetails(IVehicleService vehicleService, IMemoryService memoryService)
+    public VehicleDetails(IVehicleService vehicleService, IMemoryService memoryService, IErrorHandler errors)
     {
         _vehicleService = vehicleService ?? throw new ArgumentNullException(nameof(vehicleService));
         _memoryService = memoryService ?? throw new ArgumentNullException(nameof(memoryService));
+        _errors = errors ?? throw new ArgumentNullException(nameof(errors));
         InitializeComponent();
 
 
@@ -54,7 +57,8 @@ public partial class VehicleDetails : ContentPage
 
     private async Task LoadDataAsync(Guid id)
     {
-        try
+        // No inline error surface on this page, so the user gets an alert.
+        await _errors.SafeRunAsync(async () =>
         {
             var localToday = DateTime.Now.Date;
             var from = new DateTimeOffset(localToday, DateTimeOffset.Now.Offset);
@@ -65,19 +69,6 @@ public partial class VehicleDetails : ContentPage
             {
                 BindingContext = VehicleDetailsViewModel.FromDto(dto);
             }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[ERROR] LoadDataAsync: {ex}");
-            try
-            {
-                await DisplayAlert("Błąd",
-                    $"Nie udało się otworzyć szczegółów pojazdu.\n{ex.Message}",
-                    "OK");
-            }
-            catch
-            {
-            }
-        }
+        }, "VehicleDetails.LoadDataAsync", ErrorPolicy.Notify);
     }
 }

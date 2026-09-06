@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Maui;
 using KAMICH.Core.Services;
+using KAMICH.Exceptions;
 using KAMICH.Core.Services.Implementations;
 using Microcharts.Maui;
 using Microsoft.Extensions.Logging;
@@ -42,6 +43,9 @@ namespace KAMICH
 #if WINDOWS || MACCATALYST
             builder.UseScottPlot();
 #endif
+            builder.Services.AddSingleton<IErrorLog, InMemoryErrorLog>();
+            builder.Services.AddSingleton<IErrorPresenter, ErrorPresenter>();
+            builder.Services.AddSingleton<IErrorHandler, ErrorHandler>();
             builder.Services.AddSingleton<ISettingsService, SettingsService>();
             builder.Services.AddSingleton<IMemoryService, MemoryService>();
             builder.Services.AddSingleton<ICacheService, CacheService>();
@@ -69,6 +73,9 @@ namespace KAMICH
 
 
             var mauiApp = builder.Build();
+
+            GlobalExceptionHandler.Install(mauiApp.Services.GetRequiredService<IErrorHandler>());
+
             return mauiApp;
 
 

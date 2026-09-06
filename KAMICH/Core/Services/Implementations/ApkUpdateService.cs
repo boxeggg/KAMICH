@@ -1,4 +1,5 @@
-﻿using KAMICH.Integrations.Linqo.Models;
+﻿using KAMICH.Exceptions;
+using KAMICH.Integrations.Linqo.Models;
 using System;
 using System.Collections.Generic;
 using System.Net.Http.Json;
@@ -51,11 +52,12 @@ namespace KAMICH.Core.Services.Implementations
         {
             string targetPath = Path.Combine(FileSystem.CacheDirectory, "update.apk");
 
-            using var response = await _httpClient.GetAsync(
-                "api/apk/latest",
+            using var request = new HttpRequestMessage(HttpMethod.Get, "api/apk/latest");
+            using var response = await _httpClient.SendApiAsync(
+                request,
                 HttpCompletionOption.ResponseHeadersRead);
 
-            response.EnsureSuccessStatusCode();
+            await response.EnsureApiSuccessAsync();
 
             long? totalBytes = response.Content.Headers.ContentLength;
 

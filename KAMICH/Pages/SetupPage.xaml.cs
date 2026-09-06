@@ -1,14 +1,17 @@
 using KAMICH.Core.Services.Implementations;
+using KAMICH.Exceptions;
 
 namespace KAMICH.Pages;
 
 public partial class SetupPage : ContentPage
 {
     private readonly ISettingsService _settingsService;
+    private readonly IErrorHandler _errors;
 
-    public SetupPage(ISettingsService settingsService)
+    public SetupPage(ISettingsService settingsService, IErrorHandler errors)
     {
         _settingsService = settingsService;
+        _errors = errors;
         InitializeComponent();
     }
 
@@ -33,14 +36,14 @@ public partial class SetupPage : ContentPage
         StartButton.IsEnabled = false;
         StartButton.Text = "Konfigurowanie...";
 
-        try
+        var error = await _errors.SafeRunAsync(async () =>
         {
             await _settingsService.SetApiKeyAsync(apiKey);
             await Shell.Current.GoToAsync("//home");
-        }
-        catch (Exception ex)
+        }, "SetupPage.OnStartClicked", ErrorPolicy.Notify);
+
+        if (error is not null)
         {
-            await DisplayAlert("Błąd", $"Nie udało się zapisać konfiguracji.\n{ex.Message}", "OK");
             StartButton.IsEnabled = true;
             StartButton.Text = "Rozpocznij";
         }

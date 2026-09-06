@@ -2,18 +2,21 @@
 using System.Globalization;
 using KAMICH.Core.Models;
 using KAMICH.Core.Services.Implementations;
+using KAMICH.Exceptions;
 
 namespace KAMICH.Pages;
 
 public partial class SettingsPage : ContentPage
 {
     private readonly ISettingsService _settings;
+    private readonly IErrorHandler _errors;
     private bool _loading;
 
-    public SettingsPage(ISettingsService settings)
+    public SettingsPage(ISettingsService settings, IErrorHandler errors)
     {
         InitializeComponent();
         _settings = settings;
+        _errors = errors;
 
         VersionLabel.Text = $"Wersja {AppInfo.Current.VersionString} ({AppInfo.Current.BuildString})";
     }
@@ -21,7 +24,7 @@ public partial class SettingsPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await LoadAsync();
+        await _errors.SafeRunAsync(LoadAsync, "SettingsPage.LoadAsync", ErrorPolicy.Notify);
     }
 
     private async Task LoadAsync()
@@ -90,26 +93,32 @@ public partial class SettingsPage : ContentPage
         {
             Application.Current.UserAppTheme = theme;
         });
-        await SaveNonSecretsAsync();
+        await _errors.SafeRunAsync(SaveNonSecretsAsync, "SettingsPage.OnDarkModeToggled");
     }
     private async void OnParameterChange(object? sender, FocusEventArgs focusEventArgs)
     {
         if (_loading) return;
-        await SaveNonSecretsAsync();
+        await _errors.SafeRunAsync(SaveNonSecretsAsync, "SettingsPage.OnParameterChange");
     }
 
     
     private async void OnApiKeyCompleted(object? sender, EventArgs e)
     {
         if (_loading) return;
-        await _settings.SetApiKeyAsync(ApiKeyEntry.Text);
+        await SaveApiKeyAsync();
     }
 
     private async void OnApiKeyUnfocused(object? sender, FocusEventArgs e)
     {
         if (_loading) return;
-        await _settings.SetApiKeyAsync(ApiKeyEntry.Text);
+        await SaveApiKeyAsync();
     }
+
+    private Task SaveApiKeyAsync() =>
+        _errors.SafeRunAsync(
+            () => _settings.SetApiKeyAsync(ApiKeyEntry.Text),
+            "SettingsPage.SaveApiKey",
+            ErrorPolicy.Notify);
 
     private void OnToggleApiKeyVisibility(object? sender, EventArgs e)
     {
@@ -120,7 +129,7 @@ public partial class SettingsPage : ContentPage
     private async void OnClearNonSecretsTapped(object? sender, TappedEventArgs e)
     {
         _settings.ResetNonSecrets();
-        await LoadAsync();
+        await _errors.SafeRunAsync(LoadAsync, "SettingsPage.OnClearNonSecretsTapped", ErrorPolicy.Notify);
     }
     private async void OnHelpTapped(object sender, EventArgs e)
     {

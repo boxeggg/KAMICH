@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using KAMICH.Core.Models;
 using KAMICH.Core.Services;
+using KAMICH.Exceptions;
 
 namespace KAMICH.Pages;
 
@@ -17,6 +18,7 @@ public partial class VehicleCustomizationPage : ContentPage
     private Guid _vehicleId;
     private readonly IMemoryService _memoryService;
     private readonly IVehicleService _vehicleService;
+    private readonly IErrorHandler _errors;
     public ObservableCollection<IconItem> Icons { get; set; } = new();
     public ObservableCollection<Color> Colors { get; set; } = new();
 
@@ -33,10 +35,11 @@ public partial class VehicleCustomizationPage : ContentPage
             }
         }
     }
-    public VehicleCustomizationPage(IMemoryService memoryService, IVehicleService vehicleService)
+    public VehicleCustomizationPage(IMemoryService memoryService, IVehicleService vehicleService, IErrorHandler errors)
     {
         _memoryService = memoryService;
         _vehicleService = vehicleService;
+        _errors = errors;
         InitializeComponent();
         Icons.Add(new IconItem { IconGlyph = "\uf1b9" });
         Icons.Add(new IconItem { IconGlyph = "\uf0d1" }); 
@@ -104,7 +107,10 @@ public partial class VehicleCustomizationPage : ContentPage
         }
     }
 
-    private async void SaveButton(object? sender, EventArgs e)
+    private async void SaveButton(object? sender, EventArgs e) =>
+        await _errors.SafeRunAsync(SaveAsync, "VehicleCustomizationPage.Save", ErrorPolicy.Notify);
+
+    private async Task SaveAsync()
     {
         var model = await _memoryService.GetMemoryVehiclesDetails(_vehicleId);
         var vehicles = await _vehicleService.GetVehicles();
@@ -143,7 +149,7 @@ public partial class VehicleCustomizationPage : ContentPage
                 await _vehicleService.GetVehicles(bypassCache: true);
                 await Shell.Current.GoToAsync($"..");
             }
-            else await DisplayAlert("Warning", "Something went wrong", "OK");
+            else await DisplayAlert("Błąd", "Nie udało się zapisać ustawień pojazdu.", "OK");
 
         }
         else
@@ -165,7 +171,7 @@ public partial class VehicleCustomizationPage : ContentPage
                     NumberStyles.Number, CultureInfo.InvariantCulture, out var fcp) ? fcp : 0.0
             };
             if(await _memoryService.SetMemoryVehicle(newModel)) await Shell.Current.GoToAsync($"..");
-            else await DisplayAlert("Warning", "Something went wrong", "OK");
+            else await DisplayAlert("Błąd", "Nie udało się zapisać ustawień pojazdu.", "OK");
         }
 
     }

@@ -1,7 +1,7 @@
 using KAMICH.Core.Services;
 using KAMICH.Core.ViewModels;
+using KAMICH.Exceptions;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Windows.Input;
 
 namespace KAMICH.Pages;
@@ -10,16 +10,18 @@ public partial class FleetPage : ContentPage
 {
     private readonly IVehicleService _vehicleService;
     private readonly IMemoryService _memoryService;
+    private readonly IErrorHandler _errors;
 
     public ObservableCollection<VehicleViewModel> Vehicles { get; } = new();
     public ICommand NavigateToVehicleCommand { get; }
     private bool _isNavigating;
 
-    public FleetPage(IVehicleService vehicleService, IMemoryService memoryService)
+    public FleetPage(IVehicleService vehicleService, IMemoryService memoryService, IErrorHandler errors)
     {
         InitializeComponent();
         _vehicleService = vehicleService;
         _memoryService = memoryService;
+        _errors = errors;
         BindingContext = this;
 
         NavigateToVehicleCommand = new Command<object>(async param =>
@@ -27,7 +29,7 @@ public partial class FleetPage : ContentPage
             if (_isNavigating) return;
             _isNavigating = true;
 
-            try
+            await _errors.SafeRunAsync(async () =>
             {
                 if (param == null) return;
 
@@ -36,15 +38,9 @@ public partial class FleetPage : ContentPage
                 {
                     await Shell.Current.GoToAsync($"details?VehicleId={idStr}");
                 }
-            }
-            catch (Exception ex)
-            {
-                try { await DisplayAlert("Błąd", "Nie udało się otworzyć szczegółów pojazdu." + ex, "OK"); } catch { }
-            }
-            finally
-            {
-                _isNavigating = false;
-            }
+            }, "FleetPage.NavigateToVehicle", ErrorPolicy.Notify);
+
+            _isNavigating = false;
         });
     }
 
@@ -65,7 +61,8 @@ public partial class FleetPage : ContentPage
 
         Vehicles.Clear();
 
-        try
+        // Logged by policy; the page shows the same wording inline instead of an alert.
+        var error = await _errors.SafeRunAsync(async () =>
         {
             var vehicles = await _vehicleService.GetVehicles(bypassCache: withCacheBypass);
 
@@ -80,21 +77,15 @@ public partial class FleetPage : ContentPage
                 var memory = await _memoryService.GetMemoryVehiclesDetails(v.Id);
                 Vehicles.Add(VehicleViewModel.FromDto(v, memory));
             }
-        }
-        catch (Exception ex)
+        }, "FleetPage.LoadAsync");
+
+        if (error is not null)
         {
-            Debug.WriteLine($"LoadAsync exception: {ex}");
-            try
-            {
-                ErrorLabel.Text = "Wystąpił błąd podczas pobierania listy pojazdów.";
-                ErrorLabel.IsVisible = true;
-            }
-            catch { }
+            ErrorLabel.Text = error.Message;
+            ErrorLabel.IsVisible = true;
         }
-        finally
-        {
-            Loader.IsRunning = false;
-            Loader.IsVisible = false;
-        }
+
+        Loader.IsRunning = false;
+        Loader.IsVisible = false;
     }
 }

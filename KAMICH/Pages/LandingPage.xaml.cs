@@ -1,9 +1,9 @@
 using KAMICH.Core.Services;
 using KAMICH.Core.Services.Implementations;
 using KAMICH.Core.Models;
+using KAMICH.Exceptions;
 using Microcharts;
 using SkiaSharp;
-using System.Diagnostics;
 using KAMICH.Core.ViewModels;
 #if ANDROID
 using KAMICH.Platforms.Android;
@@ -15,6 +15,7 @@ public partial class LandingPage : ContentPage
     private readonly IHomeService _homeService;
     private readonly ISettingsService _settings;
     private readonly IApkUpdateService _updateService;
+    private readonly IErrorHandler _errors;
     private string _currentPeriod = "DAILY";
     private CancellationTokenSource _cts;
     private bool _doneHealthCheck = false;
@@ -29,12 +30,14 @@ public partial class LandingPage : ContentPage
     private DateTime _selectedMonth = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
     private DateTime _selectedYear = new DateTime(DateTime.Now.Year, 1, 1);
 
-    public LandingPage(IHomeService homeService, ISettingsService settings, IApkUpdateService updateService)
+    public LandingPage(IHomeService homeService, ISettingsService settings, IApkUpdateService updateService,
+        IErrorHandler errors)
     {
         InitializeComponent();
         _homeService = homeService;
         _settings = settings;
         _updateService = updateService;
+        _errors = errors;
     }
 
     protected override async void OnAppearing()
@@ -180,12 +183,15 @@ public partial class LandingPage : ContentPage
     {
         _cts?.Cancel();
         await Task.Delay(500);
-        _cts = new CancellationTokenSource();
-        try
-        {
-            LoadingIndicator.IsRunning = true;
-            LoadingIndicator.IsVisible = true;
+        var cts = _cts = new CancellationTokenSource();
 
+        LoadingIndicator.IsRunning = true;
+        LoadingIndicator.IsVisible = true;
+
+        // A reload the user superseded (switching period quickly) cancels the token
+        // and is ignored by the handler.
+        await _errors.SafeRunAsync(async () =>
+        {
             var selectedDate = _currentPeriod switch
             {
                 "DAILY" => _selectedDate,
@@ -194,7 +200,7 @@ public partial class LandingPage : ContentPage
                 _ => DateTime.Now
             };
 
-            var vm = await _homeService.GetHomePageViewModel(_cts.Token, _currentPeriod, selectedDate);
+            var vm = await _homeService.GetHomePageViewModel(cts.Token, _currentPeriod, selectedDate);
             BindingContext = vm;
 
             // Delay so layout settles before setting chart
@@ -203,29 +209,10 @@ public partial class LandingPage : ContentPage
                 await Task.Delay(100);
                 UpdateChart(vm);
             });
-        }
-        catch (OperationCanceledException)
-        {
-        }
-        catch (System.Net.WebException wex)
-        {
-            Debug.WriteLine($"WebException: {wex}");
-            Debug.WriteLine($"{_cts.IsCancellationRequested} :  {_cts.Token.ToString()}");
-        }
-        catch (HttpRequestException ex)
-        {
-            await DisplayAlert("Błąd", ex.Message, "OK");
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine(ex.ToString());
-            await DisplayAlert("Nieoczekiwany błąd", ex.Message, "OK");
-        }
-        finally
-        {
-            LoadingIndicator.IsRunning = false;
-            LoadingIndicator.IsVisible = false;
-        }
+        }, "LandingPage.LoadData", ErrorPolicy.Notify);
+
+        LoadingIndicator.IsRunning = false;
+        LoadingIndicator.IsVisible = false;
     }
 
     private void OnChartBarClicked(object sender, EventArgs e)
@@ -416,12 +403,12 @@ public partial class LandingPage : ContentPage
     }
     private async Task DownloadAndInstallAsync()
     {
-        try
-        {
-            DownloadProgressFrame.IsVisible = true;
-            DownloadProgressBar.Progress = 0;
-            DownloadProgressLabel.Text = "Pobieranie... 0%";
+        DownloadProgressFrame.IsVisible = true;
+        DownloadProgressBar.Progress = 0;
+        DownloadProgressLabel.Text = "Pobieranie... 0%";
 
+        await _errors.SafeRunAsync(async () =>
+        {
             var progress = new Progress<double>(percent =>
             {
                 MainThread.BeginInvokeOnMainThread(() =>
@@ -438,14 +425,8 @@ public partial class LandingPage : ContentPage
 #if ANDROID
             ApkInstaller.InstallApk(filePath);
 #endif
-        }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Błąd", $"Nie udało się pobrać aktualizacji: {ex.Message}", "OK");
-        }
-        finally
-        {
-            DownloadProgressFrame.IsVisible = false;
-        }
+        }, "LandingPage.DownloadAndInstallAsync", ErrorPolicy.Notify);
+
+        DownloadProgressFrame.IsVisible = false;
     }
 }

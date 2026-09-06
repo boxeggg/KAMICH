@@ -1,3 +1,4 @@
+using KAMICH.Exceptions;
 using KAMICH.Integrations.Api;
 using KAMICH.Integrations.Linqo.Models;
 using System.Globalization;
@@ -27,7 +28,7 @@ public class VehicleService : IVehicleService
     {
         var key = await _settings.GetApiKeyAsync();
         if (string.IsNullOrEmpty(key))
-            throw new InvalidOperationException("Brak klucza API. Skonfiguruj go w ustawieniach.");
+            throw new MissingApiKeyException();
         return key;
     }
 
@@ -44,8 +45,8 @@ public class VehicleService : IVehicleService
         using var req = new HttpRequestMessage(HttpMethod.Get, "api/vehicles");
         req.Headers.Add("X-Api-Key", apiKey);
 
-        using var resp = await _http.SendAsync(req, ct);
-        resp.EnsureSuccessStatusCode();
+        using var resp = await _http.SendApiAsync(req, ct);
+        await resp.EnsureApiSuccessAsync(ct);
         var text = await resp.Content.ReadAsStringAsync(ct);
         var vehicles = JsonSerializer.Deserialize<List<VehicleModelDto>>(text, JsonOpts) ?? new();
 
@@ -64,8 +65,8 @@ public class VehicleService : IVehicleService
             $"api/vehicles/{objectId}/details?from={Uri.EscapeDataString(fromStr)}&to={Uri.EscapeDataString(toStr)}");
         req.Headers.Add("X-Api-Key", apiKey);
 
-        using var resp = await _http.SendAsync(req, ct);
-        resp.EnsureSuccessStatusCode();
+        using var resp = await _http.SendApiAsync(req, ct);
+        await resp.EnsureApiSuccessAsync(ct);
         var text = await resp.Content.ReadAsStringAsync(ct);
         return JsonSerializer.Deserialize<VehicleDetailsDto>(text, JsonOpts) ?? new();
     }
@@ -77,8 +78,8 @@ public class VehicleService : IVehicleService
             $"api/vehicles/{vehicleId}/stats/{type}/history");
         req.Headers.Add("X-Api-Key", apiKey);
 
-        using var resp = await _http.SendAsync(req, ct);
-        resp.EnsureSuccessStatusCode();
+        using var resp = await _http.SendApiAsync(req, ct);
+        await resp.EnsureApiSuccessAsync(ct);
         var text = await resp.Content.ReadAsStringAsync(ct);
         return JsonSerializer.Deserialize<List<StatsDto>>(text, JsonOpts) ?? new();
     }
@@ -91,9 +92,9 @@ public class VehicleService : IVehicleService
             $"api/vehicles/{vehicleId}/stats/{type}?periodStart={dateStr}");
         req.Headers.Add("X-Api-Key", apiKey);
 
-        using var resp = await _http.SendAsync(req, ct);
+        using var resp = await _http.SendApiAsync(req, ct);
         if (resp.StatusCode == System.Net.HttpStatusCode.NotFound) return null;
-        resp.EnsureSuccessStatusCode();
+        await resp.EnsureApiSuccessAsync(ct);
         var text = await resp.Content.ReadAsStringAsync(ct);
         if (string.IsNullOrWhiteSpace(text)) return null;
         return JsonSerializer.Deserialize<StatsDto>(text, JsonOpts);
@@ -107,9 +108,9 @@ public class VehicleService : IVehicleService
             $"api/vehicles/{vehicleId}/worklog?date={dateStr}");
         req.Headers.Add("X-Api-Key", apiKey);
 
-        using var resp = await _http.SendAsync(req, ct);
+        using var resp = await _http.SendApiAsync(req, ct);
         if (resp.StatusCode == System.Net.HttpStatusCode.NotFound) return null;
-        resp.EnsureSuccessStatusCode();
+        await resp.EnsureApiSuccessAsync(ct);
         var text = await resp.Content.ReadAsStringAsync(ct);
         if (string.IsNullOrWhiteSpace(text)) return null;
         return JsonSerializer.Deserialize<WorkLogDto>(text, JsonOpts);

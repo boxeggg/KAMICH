@@ -1,5 +1,6 @@
 using KAMICH.Core.Services;
 using KAMICH.Core.ViewModels;
+using KAMICH.Exceptions;
 
 namespace KAMICH.Pages;
 
@@ -8,6 +9,7 @@ public partial class StatsPage : ContentPage
 {
     private Guid _vehicleId;
     private readonly IVehicleService _vehicleService;
+    private readonly IErrorHandler _errors;
     private string _currentType = "WEEKLY";
 
     public string VehicleId
@@ -20,9 +22,10 @@ public partial class StatsPage : ContentPage
         }
     }
 
-    public StatsPage(IVehicleService vehicleService)
+    public StatsPage(IVehicleService vehicleService, IErrorHandler errors)
     {
         _vehicleService = vehicleService;
+        _errors = errors;
         InitializeComponent();
     }
 
@@ -56,13 +59,14 @@ public partial class StatsPage : ContentPage
 
     private async Task LoadStats()
     {
-        try
-        {
-            LoadingIndicator.IsRunning = true;
-            LoadingIndicator.IsVisible = true;
-            EmptyLabel.IsVisible = false;
-            StatsCollection.ItemsSource = null;
+        LoadingIndicator.IsRunning = true;
+        LoadingIndicator.IsVisible = true;
+        EmptyLabel.IsVisible = false;
+        StatsCollection.ItemsSource = null;
 
+        // No inline error surface on this page, so the user gets an alert.
+        await _errors.SafeRunAsync(async () =>
+        {
             var stats = await _vehicleService.GetStats(_vehicleId, _currentType);
 
             if (stats == null || stats.Count == 0)
@@ -73,16 +77,10 @@ public partial class StatsPage : ContentPage
             {
                 StatsCollection.ItemsSource = stats.Select(StatsViewModel.FromDto).ToList();
             }
-        }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Błąd", $"Nie udało się pobrać statystyk.\n{ex.Message}", "OK");
-        }
-        finally
-        {
-            LoadingIndicator.IsRunning = false;
-            LoadingIndicator.IsVisible = false;
-        }
+        }, "StatsPage.LoadStats", ErrorPolicy.Notify);
+
+        LoadingIndicator.IsRunning = false;
+        LoadingIndicator.IsVisible = false;
     }
 
     private void UpdateTabStyles()
