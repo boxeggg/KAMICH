@@ -9,14 +9,14 @@ namespace KAMICH.Pages;
 public partial class SettingsPage : ContentPage
 {
     private readonly ISettingsService _settings;
-    private readonly IErrorHandler _errors;
+    private readonly IErrorHandler _runner;
     private bool _loading;
 
-    public SettingsPage(ISettingsService settings, IErrorHandler errors)
+    public SettingsPage(ISettingsService settings, IErrorHandler runner)
     {
         InitializeComponent();
         _settings = settings;
-        _errors = errors;
+        _runner = runner;
 
         VersionLabel.Text = $"Wersja {AppInfo.Current.VersionString} ({AppInfo.Current.BuildString})";
     }
@@ -24,7 +24,7 @@ public partial class SettingsPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await _errors.SafeRunAsync(LoadAsync, "SettingsPage.LoadAsync", ErrorPolicy.Notify);
+        await _runner.RunAsync(LoadAsync, "SettingsPage.LoadAsync", ErrorPolicy.Notify);
     }
 
     private async Task LoadAsync()
@@ -93,12 +93,12 @@ public partial class SettingsPage : ContentPage
         {
             Application.Current.UserAppTheme = theme;
         });
-        await _errors.SafeRunAsync(SaveNonSecretsAsync, "SettingsPage.OnDarkModeToggled");
+        await _runner.RunAsync(SaveNonSecretsAsync, "SettingsPage.OnDarkModeToggled");
     }
     private async void OnParameterChange(object? sender, FocusEventArgs focusEventArgs)
     {
         if (_loading) return;
-        await _errors.SafeRunAsync(SaveNonSecretsAsync, "SettingsPage.OnParameterChange");
+        await _runner.RunAsync(SaveNonSecretsAsync, "SettingsPage.OnParameterChange");
     }
 
     
@@ -115,7 +115,7 @@ public partial class SettingsPage : ContentPage
     }
 
     private Task SaveApiKeyAsync() =>
-        _errors.SafeRunAsync(
+        _runner.RunAsync(
             () => _settings.SetApiKeyAsync(ApiKeyEntry.Text),
             "SettingsPage.SaveApiKey",
             ErrorPolicy.Notify);
@@ -129,7 +129,7 @@ public partial class SettingsPage : ContentPage
     private async void OnClearNonSecretsTapped(object? sender, TappedEventArgs e)
     {
         _settings.ResetNonSecrets();
-        await _errors.SafeRunAsync(LoadAsync, "SettingsPage.OnClearNonSecretsTapped", ErrorPolicy.Notify);
+        await _runner.RunAsync(LoadAsync, "SettingsPage.OnClearNonSecretsTapped", ErrorPolicy.Notify);
     }
     private async void OnHelpTapped(object sender, EventArgs e)
     {

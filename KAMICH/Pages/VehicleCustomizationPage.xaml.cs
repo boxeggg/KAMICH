@@ -18,7 +18,7 @@ public partial class VehicleCustomizationPage : ContentPage
     private Guid _vehicleId;
     private readonly IMemoryService _memoryService;
     private readonly IVehicleService _vehicleService;
-    private readonly IErrorHandler _errors;
+    private readonly IErrorHandler _runner;
     public ObservableCollection<IconItem> Icons { get; set; } = new();
     public ObservableCollection<Color> Colors { get; set; } = new();
 
@@ -35,11 +35,11 @@ public partial class VehicleCustomizationPage : ContentPage
             }
         }
     }
-    public VehicleCustomizationPage(IMemoryService memoryService, IVehicleService vehicleService, IErrorHandler errors)
+    public VehicleCustomizationPage(IMemoryService memoryService, IVehicleService vehicleService, IErrorHandler runner)
     {
         _memoryService = memoryService;
         _vehicleService = vehicleService;
-        _errors = errors;
+        _runner = runner;
         InitializeComponent();
         Icons.Add(new IconItem { IconGlyph = "\uf1b9" });
         Icons.Add(new IconItem { IconGlyph = "\uf0d1" }); 
@@ -108,7 +108,7 @@ public partial class VehicleCustomizationPage : ContentPage
     }
 
     private async void SaveButton(object? sender, EventArgs e) =>
-        await _errors.SafeRunAsync(SaveAsync, "VehicleCustomizationPage.Save", ErrorPolicy.Notify);
+        await _runner.RunAsync(SaveAsync, "VehicleCustomizationPage.Save", ErrorPolicy.Notify);
 
     private async Task SaveAsync()
     {

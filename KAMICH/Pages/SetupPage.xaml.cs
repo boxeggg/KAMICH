@@ -6,12 +6,12 @@ namespace KAMICH.Pages;
 public partial class SetupPage : ContentPage
 {
     private readonly ISettingsService _settingsService;
-    private readonly IErrorHandler _errors;
+    private readonly IErrorHandler _runner;
 
-    public SetupPage(ISettingsService settingsService, IErrorHandler errors)
+    public SetupPage(ISettingsService settingsService, IErrorHandler runner)
     {
         _settingsService = settingsService;
-        _errors = errors;
+        _runner = runner;
         InitializeComponent();
     }
 
@@ -36,7 +36,7 @@ public partial class SetupPage : ContentPage
         StartButton.IsEnabled = false;
         StartButton.Text = "Konfigurowanie...";
 
-        var error = await _errors.SafeRunAsync(async () =>
+        var error = await _runner.RunAsync(async () =>
         {
             await _settingsService.SetApiKeyAsync(apiKey);
             await Shell.Current.GoToAsync("//home");
