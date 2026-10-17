@@ -63,9 +63,9 @@ namespace KAMICH.Core.Services.Implementations
 
             await using var contentStream = await response.Content.ReadAsStreamAsync();
             await using var fileStream = new FileStream(
-                targetPath, FileMode.Create, FileAccess.Write, FileShare.None, 8192, true);
+                targetPath, FileMode.Create, FileAccess.Write, FileShare.None, 128 * 1024, true);
 
-            var buffer = new byte[8192];
+            var buffer = new byte[128 * 1024];
             long totalRead = 0;
             int read;
 
