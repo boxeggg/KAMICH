@@ -10,18 +10,18 @@ public partial class FleetPage : ContentPage
 {
     private readonly IVehicleService _vehicleService;
     private readonly IMemoryService _memoryService;
-    private readonly IErrorHandler _errors;
+    private readonly IErrorHandler _runner;
 
     public ObservableCollection<VehicleViewModel> Vehicles { get; } = new();
     public ICommand NavigateToVehicleCommand { get; }
     private bool _isNavigating;
 
-    public FleetPage(IVehicleService vehicleService, IMemoryService memoryService, IErrorHandler errors)
+    public FleetPage(IVehicleService vehicleService, IMemoryService memoryService, IErrorHandler runner)
     {
         InitializeComponent();
         _vehicleService = vehicleService;
         _memoryService = memoryService;
-        _errors = errors;
+        _runner = runner;
         BindingContext = this;
 
         NavigateToVehicleCommand = new Command<object>(async param =>
@@ -29,7 +29,7 @@ public partial class FleetPage : ContentPage
             if (_isNavigating) return;
             _isNavigating = true;
 
-            await _errors.SafeRunAsync(async () =>
+            await _runner.RunAsync(async () =>
             {
                 if (param == null) return;
 
@@ -62,7 +62,7 @@ public partial class FleetPage : ContentPage
         Vehicles.Clear();
 
         // Logged by policy; the page shows the same wording inline instead of an alert.
-        var error = await _errors.SafeRunAsync(async () =>
+        var error = await _runner.RunAsync(async () =>
         {
             var vehicles = await _vehicleService.GetVehicles(bypassCache: withCacheBypass);
 

@@ -17,14 +17,13 @@ public interface IErrorHandler
     /// </returns>
     Task<ErrorPresentation> HandleAsync(Exception exception, string? context = null, ErrorPolicy? policyOverride = null);
 
-    /// <summary>Runs <paramref name="action"/> and handles anything it throws.</summary>
+    /// <summary>
+    /// Runs <paramref name="action"/> and handles anything it throws, so callers
+    /// need no try/catch of their own. Never throws.
+    /// </summary>
     /// <returns>
     /// <c>null</c> when it completed, otherwise the user-facing wording for the failure
     /// (so the caller can both detect it and show it inline).
     /// </returns>
-    Task<ErrorPresentation?> SafeRunAsync(Func<Task> action, string? context = null, ErrorPolicy? policyOverride = null);
-
-    /// <summary>Runs <paramref name="action"/> and handles anything it throws.</summary>
-    /// <returns>The result, or <c>default</c> when it threw.</returns>
-    Task<T?> SafeRunAsync<T>(Func<Task<T>> action, string? context = null, ErrorPolicy? policyOverride = null);
+    Task<ErrorPresentation?> RunAsync(Func<Task> action, string? context = null, ErrorPolicy? policyOverride = null);
 }

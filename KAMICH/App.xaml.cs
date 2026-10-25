@@ -7,9 +7,9 @@ namespace KAMICH
     public partial class App : Application
     {
         private readonly ISettingsService _settingsService;
-        private readonly IErrorHandler _errors;
+        private readonly IErrorHandler _runner;
 
-        public App(ISettingsService settingsService, IErrorHandler errors)
+        public App(ISettingsService settingsService, IErrorHandler runner)
         {
             var polish = new CultureInfo("pl-PL");
             CultureInfo.DefaultThreadCurrentCulture = polish;
@@ -17,7 +17,7 @@ namespace KAMICH
 
             InitializeComponent();
             _settingsService = settingsService;
-            _errors = errors;
+            _runner = runner;
             var dark = Preferences.Get("settings.dark_mode", false);
             this.UserAppTheme = dark ? AppTheme.Dark : AppTheme.Light;
             _ = LoadSettingsInBackground();
@@ -36,7 +36,7 @@ namespace KAMICH
             return window;
         }
         // Startup work with no UI yet: failures are recorded, never shown.
-        private Task LoadSettingsInBackground() => _errors.SafeRunAsync(async () =>
+        private Task LoadSettingsInBackground() => _runner.RunAsync(async () =>
         {
             if (_settingsService is null) return;
 

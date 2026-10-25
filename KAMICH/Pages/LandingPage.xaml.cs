@@ -15,7 +15,7 @@ public partial class LandingPage : ContentPage
     private readonly IHomeService _homeService;
     private readonly ISettingsService _settings;
     private readonly IApkUpdateService _updateService;
-    private readonly IErrorHandler _errors;
+    private readonly IErrorHandler _runner;
     private string _currentPeriod = "DAILY";
     private CancellationTokenSource _cts;
     private bool _doneHealthCheck = false;
@@ -31,13 +31,13 @@ public partial class LandingPage : ContentPage
     private DateTime _selectedYear = new DateTime(DateTime.Now.Year, 1, 1);
 
     public LandingPage(IHomeService homeService, ISettingsService settings, IApkUpdateService updateService,
-        IErrorHandler errors)
+        IErrorHandler runner)
     {
         InitializeComponent();
         _homeService = homeService;
         _settings = settings;
         _updateService = updateService;
-        _errors = errors;
+        _runner = runner;
     }
 
     protected override async void OnAppearing()
@@ -190,7 +190,7 @@ public partial class LandingPage : ContentPage
 
         // A reload the user superseded (switching period quickly) cancels the token
         // and is ignored by the handler.
-        await _errors.SafeRunAsync(async () =>
+        await _runner.RunAsync(async () =>
         {
             var selectedDate = _currentPeriod switch
             {
@@ -407,7 +407,7 @@ public partial class LandingPage : ContentPage
         DownloadProgressBar.Progress = 0;
         DownloadProgressLabel.Text = "Pobieranie... 0%";
 
-        await _errors.SafeRunAsync(async () =>
+        await _runner.RunAsync(async () =>
         {
             var progress = new Progress<double>(percent =>
             {

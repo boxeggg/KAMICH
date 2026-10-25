@@ -40,7 +40,7 @@ public class ErrorHandler : IErrorHandler
         return presentation;
     }
 
-    public async Task<ErrorPresentation?> SafeRunAsync(Func<Task> action, string? context = null, ErrorPolicy? policyOverride = null)
+    public async Task<ErrorPresentation?> RunAsync(Func<Task> action, string? context = null, ErrorPolicy? policyOverride = null)
     {
         try
         {
@@ -50,19 +50,6 @@ public class ErrorHandler : IErrorHandler
         catch (Exception ex)
         {
             return await HandleAsync(ex, context, policyOverride);
-        }
-    }
-
-    public async Task<T?> SafeRunAsync<T>(Func<Task<T>> action, string? context = null, ErrorPolicy? policyOverride = null)
-    {
-        try
-        {
-            return await action();
-        }
-        catch (Exception ex)
-        {
-            await HandleAsync(ex, context, policyOverride);
-            return default;
         }
     }
 

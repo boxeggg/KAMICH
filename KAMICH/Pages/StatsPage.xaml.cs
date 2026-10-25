@@ -9,7 +9,7 @@ public partial class StatsPage : ContentPage
 {
     private Guid _vehicleId;
     private readonly IVehicleService _vehicleService;
-    private readonly IErrorHandler _errors;
+    private readonly IErrorHandler _runner;
     private string _currentType = "WEEKLY";
 
     public string VehicleId
@@ -22,10 +22,10 @@ public partial class StatsPage : ContentPage
         }
     }
 
-    public StatsPage(IVehicleService vehicleService, IErrorHandler errors)
+    public StatsPage(IVehicleService vehicleService, IErrorHandler runner)
     {
         _vehicleService = vehicleService;
-        _errors = errors;
+        _runner = runner;
         InitializeComponent();
     }
 
@@ -65,7 +65,7 @@ public partial class StatsPage : ContentPage
         StatsCollection.ItemsSource = null;
 
         // No inline error surface on this page, so the user gets an alert.
-        await _errors.SafeRunAsync(async () =>
+        await _runner.RunAsync(async () =>
         {
             var stats = await _vehicleService.GetStats(_vehicleId, _currentType);
 

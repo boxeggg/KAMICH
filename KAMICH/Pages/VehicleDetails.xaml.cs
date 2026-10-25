@@ -13,7 +13,7 @@ public partial class VehicleDetails : ContentPage
     private Guid _vehicleId;
     private readonly IVehicleService _vehicleService;
     private readonly IMemoryService _memoryService;
-    private readonly IErrorHandler _errors;
+    private readonly IErrorHandler _runner;
     public string VehicleId
     {
         get => _vehicleId.ToString();
@@ -26,11 +26,11 @@ public partial class VehicleDetails : ContentPage
         }
     }
 
-    public VehicleDetails(IVehicleService vehicleService, IMemoryService memoryService, IErrorHandler errors)
+    public VehicleDetails(IVehicleService vehicleService, IMemoryService memoryService, IErrorHandler runner)
     {
         _vehicleService = vehicleService ?? throw new ArgumentNullException(nameof(vehicleService));
         _memoryService = memoryService ?? throw new ArgumentNullException(nameof(memoryService));
-        _errors = errors ?? throw new ArgumentNullException(nameof(errors));
+        _runner = runner ?? throw new ArgumentNullException(nameof(runner));
         InitializeComponent();
 
 
@@ -58,7 +58,7 @@ public partial class VehicleDetails : ContentPage
     private async Task LoadDataAsync(Guid id)
     {
         // No inline error surface on this page, so the user gets an alert.
-        await _errors.SafeRunAsync(async () =>
+        await _runner.RunAsync(async () =>
         {
             var localToday = DateTime.Now.Date;
             var from = new DateTimeOffset(localToday, DateTimeOffset.Now.Offset);
