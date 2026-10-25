@@ -23,7 +23,7 @@ public class AnalysisService : IAnalysisService
         var settings = await _settingsService.LoadAsync();
 
         var localToday = DateTime.Now.Date;
-        var from = new DateTimeOffset(localToday, DateTimeOffset.Now.Offset);
+        var from = new DateTimeOffset(localToday);
         var to = DateTimeOffset.Now;
 
         _cache.Clear();
